@@ -10,7 +10,7 @@ else:
     sys.exit("please declare environment variable 'SUMO_HOME'")
 
 sumoBinary = "D:/Documents/Programas/sumo-1.16.0/bin/sumo"
-sumoCmd = [sumoBinary, "-c", "instancias\config.sumocfg"]
+sumoCmd = [sumoBinary, "-c", "instancias/config.sumocfg"]
 
 def main():
     try:

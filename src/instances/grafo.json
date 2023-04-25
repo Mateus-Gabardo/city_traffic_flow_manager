@@ -1,0 +1,36 @@
+{
+    "vertices": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+    ],
+    "arestas": {
+        "A-B": {
+            "lenght": 10,
+            "maxSpeed": 60,
+            "numLanes": 1
+        },
+        "B-C": {
+            "lenght": 8,
+            "maxSpeed": 50,
+            "numLanes": 2
+        },
+        "C-D": {
+            "lenght": 12,
+            "maxSpeed": 40,
+            "numLanes": 2
+        },
+        "D-E": {
+            "lenght": 15,
+            "maxSpeed": 30,
+            "numLanes": 1
+        },
+        "E-A": {
+            "lenght": 5,
+            "maxSpeed": 20,
+            "numLanes": 2
+        }
+    }
+}

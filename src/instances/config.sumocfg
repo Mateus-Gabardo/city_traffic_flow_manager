@@ -1,7 +1,7 @@
 <configuration> 
 	<input> 
-		<net-file value=" mapa.net.xml" /> 
-		<route-files value=" mapa.rou.xml" /> 
+ 		<node-files value="nodes.xml"/>
+        <edge-files value="edges.xml"/>
 	</input>
 	<time> 
 		<begin value="0" /> 

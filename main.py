@@ -2,7 +2,6 @@ import os
 import sys
 from src.sumo_xml_generator import SumoFilesGenerator
 import traci
-import time
 import xml.etree.ElementTree as ET
 import shutil
 
@@ -26,22 +25,18 @@ def configFile():
     grafoFile.generateSumoFile(file_name_edge="edges.edg.xml", file_name_node="nodes.nod.xml")
 
 
-def executeAlgoritm():
-
+def runSimulation(config):
+    try:
+        traci.start(config)
+    except traci.TraCIException:
+        print("Erro ao conectar ao servidor TraCI")
     # Faz uma simulação até que todos os veículos cheguem
     while traci.simulation.getMinExpectedNumber() > 0:
         traci.simulationStep()
-    traci.close()
     print('finalizou')
 
 def main():
     configFile()
-    try:
-        traci.start(sumoCmd)
-    except traci.TraCIException:
-        print("Erro ao conectar ao servidor TraCI, tentando novamente em 10 segundos...")
-        time.sleep(10)
-        main()
-    executeAlgoritm()
+    runSimulation(sumoCmd)
 
 main()

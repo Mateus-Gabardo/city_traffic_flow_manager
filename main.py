@@ -4,7 +4,11 @@ from src.sumo_xml_generator import SumoFilesGenerator
 import traci
 import time
 import xml.etree.ElementTree as ET
+import shutil
 
+sumo_path = shutil.which('sumo')
+sumo_dir = os.path.dirname(sumo_path)
+print(sumo_dir)
 
 if 'SUMO_HOME' in os.environ:
     tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
@@ -12,7 +16,7 @@ if 'SUMO_HOME' in os.environ:
 else:
     sys.exit("please declare environment variable 'SUMO_HOME'")
 
-sumoBinary = "D:/Documents/Programas/sumo-1.16.0/bin/sumo"
+sumoBinary = sumo_dir+"/sumo"
 sumoCmd = [sumoBinary, "-c", "src/instances/config.sumocfg"]
 
 def configFile():

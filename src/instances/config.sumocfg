@@ -1,7 +1,7 @@
 <configuration> 
 	<input> 
- 		<node-files value="nodes.xml"/>
-        <edge-files value="edges.xml"/>
+ 		<node-files value="src/instances/nodes.xml"/>
+        <edge-files value="src/instances/edges.xml"/>
 	</input>
 	<time> 
 		<begin value="0" /> 

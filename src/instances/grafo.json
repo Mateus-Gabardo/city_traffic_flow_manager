@@ -32,5 +32,17 @@
             "maxSpeed": 20,
             "numLanes": 2
         }
+    },
+    "restricoes": {
+        "A-C": ["B-D","B-E","D-B","E-B"],
+        "A-D": ["E-B","E-C","B-E","C-E"],
+        "B-D": ["C-A","C-E","A-C","E-C"],
+        "B-E": ["A-C","A-D","C-A","D-A"],
+        "C-A": ["B-D","B-E","D-B","E-B"],
+        "C-E": ["D-A","D-B","A-D","B-D"],
+        "D-A": ["E-B","E-C","B-E","C-E"],
+        "D-B": ["C-A","C-E","A-C","E-C"],
+        "E-B": ["A-C","A-D","C-A","D-A"],
+        "E-C": ["D-A","D-B","A-D","B-D"]
     }
 }

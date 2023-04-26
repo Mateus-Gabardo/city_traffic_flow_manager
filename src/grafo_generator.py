@@ -18,3 +18,6 @@ class GrafoJsonWriter:
         caminho_completo = os.path.join(pasta_destino, nome_arquivo)
         with open(caminho_completo, "w") as f:
             json.dump(grafo_json, f, indent=4)
+
+    def adicionar_restricoes(self):
+       self.restricoes = []

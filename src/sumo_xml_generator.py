@@ -25,6 +25,6 @@ class SumoFilesGenerator:
                 f.write(f'   <edge id="{k}o" from="{dst}" to="{src}" priority="46" numLanes="{v["numLanes"]}" speed="{v["maxSpeed"]/3.6}" />\n')
             f.write('</edges>')
     
-    def generateSumoFile(self, file_name_node, file_name_edge, destiny = "instances"):
+    def generateSumoFile(self, file_name_node, file_name_edge, destiny = "src/instances"):
         self.generate_nodes_file(file_name_node, destiny)
         self.generate_edges_file(file_name_edge, destiny)

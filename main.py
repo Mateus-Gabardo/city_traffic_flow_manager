@@ -19,7 +19,7 @@ def configFile():
     with open('src/instances/grafo.json', 'r') as f:
         json_str = f.read()
     grafoFile = SumoFilesGenerator(json_str)
-    grafoFile.generateSumoFile(file_name_edge="nodes.xml", file_name_node="edges.xml")
+    grafoFile.generateSumoFile(file_name_edge="edges.xml", file_name_node="nodes.xml")
 
 
 def executeAlgoritm():

@@ -1,5 +1,6 @@
 import json
 import os
+import subprocess
 
 class SumoFilesGenerator:
     def __init__(self, json_str):
@@ -24,6 +25,13 @@ class SumoFilesGenerator:
                 f.write(f'   <edge id="{k}" from="{src}" to="{dst}" priority="{v["priority"]}" numLanes="{v["numLanes"]}" speed="{v["maxSpeed"]}" />\n')
             f.write('</edges>')
     
+    def generate_net_file(self, desteny, filename, nodeFile, edgeFile):
+        nodes_file = os.path.join(desteny, nodeFile)
+        edges_file = os.path.join(desteny, edgeFile)
+        net_file = os.path.join(desteny, filename)
+        subprocess.run(["netconvert", "--node-files", nodes_file, "--edge-files", edges_file, "-o", net_file])
+    
     def generateSumoFile(self, file_name_node, file_name_edge, destiny = "src/instances"):
         self.generate_nodes_file(file_name_node, destiny)
         self.generate_edges_file(file_name_edge, destiny)
+        self.generate_net_file(destiny, "network.net.xml", file_name_node, file_name_edge)

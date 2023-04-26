@@ -1,7 +1,6 @@
 <configuration> 
 	<input> 
- 		<node-files value="src/instances/nodes.xml"/>
-        <edge-files value="src/instances/edges.xml"/>
+ 		<net-file value=" network.net.xml" />
 	</input>
 	<time> 
 		<begin value="0" /> 

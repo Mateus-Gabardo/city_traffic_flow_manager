@@ -1,5 +1,6 @@
 import os 
 import sys
+from src.sumo_vehicle_router import SumoVehicleRouter
 from src.sumo_xml_generator import SumoFilesGenerator
 from src.algorithms import baseline
 import traci
@@ -23,6 +24,11 @@ def configFile():
         json_str = f.read()
     grafoFile = SumoFilesGenerator(json_str)
     grafoFile.generateSumoFile(file_name_edge="edges.edg.xml", file_name_node="nodes.nod.xml")
+
+
+def confVehicle():
+    router = SumoVehicleRouter(seed=42, min_speed=10, max_speed=30, accel=2, decel=4)
+    router.set_vehicle_routes(num_vehicles=10)
 
 
 def runSimulation(config):

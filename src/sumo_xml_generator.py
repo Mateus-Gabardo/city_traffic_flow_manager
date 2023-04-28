@@ -4,7 +4,7 @@ import subprocess
 
 class SumoFilesGenerator:
     def __init__(self, json_str):
-        self.graph = json.loads(json_str)
+        self.graph = json_str
 
     def generate_nodes_file(self, filename, desteny):
         nosFile = os.path.join(desteny, filename)

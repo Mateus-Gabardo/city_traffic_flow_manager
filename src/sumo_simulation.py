@@ -45,15 +45,10 @@ class SumoSimulation:
 
         # Faz uma simulação até que todos os veículos cheguem
         while traci.simulationStep():
-
-            # obtém uma lista com os IDs de todos os veículos na rede
             veh_ids = traci.vehicle.getIDList()
-
-            # itera sobre a lista de IDs dos veículos e coleta informações sobre cada um
             for veh_id in veh_ids:
                 # obtém a posição do veículo
                 x, y = traci.vehicle.getPosition(veh_id)
-
                 # obtém a velocidade do veículo
                 SumSpeed += traci.vehicle.getSpeed(veh_id)
                 CountSpeed += 1

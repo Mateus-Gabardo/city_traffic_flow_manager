@@ -38,29 +38,21 @@ class SumoSimulation:
         
         self.confVehicle()
 
-        SumSpeed = 0
-        CountSpeed = 0
-        SumWaiting_time= 0
-        CountWaiting_time = 0
+        SumTravelTime= 0
+        CountTravelTime = 0
 
         # Faz uma simulação até que todos os veículos cheguem
         while traci.simulationStep():
             veh_ids = traci.vehicle.getIDList()
             for veh_id in veh_ids:
-                # obtém a posição do veículo
-                x, y = traci.vehicle.getPosition(veh_id)
-                # obtém a velocidade do veículo
-                SumSpeed += traci.vehicle.getSpeed(veh_id)
-                CountSpeed += 1
-
-                # obtém o tempo de espera do veículo
-                SumWaiting_time += traci.vehicle.getWaitingTime(veh_id)
-                CountWaiting_time += 1
+                
+                # obtém o tempo de viagem do veículo
+                SumTravelTime += traci.vehicle.getAdaptedTraveltime(veh_id)
+                CountTravelTime += 1
 
         traci.close()
-        AvgSpeed = SumSpeed/CountSpeed
-        AvgWaiting_time = SumWaiting_time/CountWaiting_time
+        AvgTravelTime = SumTravelTime/CountTravelTime
         print('--------------------------------------------------------------------------------------------')
-        print(f'finalizou simulação. Velocidade média:{AvgSpeed} e tempo de espera médio:{AvgWaiting_time}')
+        print(f'finalizou simulação. Tempo de Viagem:{AvgTravelTime}')
         print('--------------------------------------------------------------------------------------------')
-        return AvgSpeed, AvgWaiting_time
+        return AvgTravelTime

@@ -10,7 +10,7 @@ class BaseLineAlgorithm:
     def executarAlgoritmo(self):
         simulador = SumoSimulation(self.graph)
         arestas = self.graph['arestas']
-        BestAvgSpeed, BestAvgWaiting_time = simulador.run_simulation()
+        BestAvgTravelTime= simulador.run_simulation()
 
         # Para cada Aresta será feita uma modificação e simulado novamente.
         # Caso seja uma melhora será salva. No final será alterado a melhor melhora.
@@ -19,9 +19,9 @@ class BaseLineAlgorithm:
             json_mod['arestas'][nome]['numLanes'] += 1
             #print(json_mod['arestas'][nome]['numLanes'])
             simulador = SumoSimulation(self.graph)
-            AvgSpeed, AvgWaiting_time = simulador.run_simulation()
-            if AvgWaiting_time < BestAvgWaiting_time:
-                BestAvgWaiting_time = AvgWaiting_time
+            AvgTravelTime = simulador.run_simulation()
+            if AvgTravelTime < BestAvgTravelTime:
+                BestAvgTravelTime = AvgTravelTime
                 bestJson = json_mod
         
         print(bestJson)

@@ -1,11 +1,10 @@
 import os
 import sys
 import shutil
-from src.sumo_vehicle_router import SumoVehicleRouter
 import traci
 import time
 import xml.etree.ElementTree as ET
-from src.sumo_xml_generator import SumoFilesGenerator
+from src.generators.sumo_xml_generator import SumoFilesGenerator
 
 
 class SumoSimulation:
@@ -22,11 +21,6 @@ class SumoSimulation:
         self.sumoBinary = os.path.join(self.sumo_dir, "sumo")
         self.sumoCmd = [self.sumoBinary, "-c", "src/instances/config.sumocfg"]
         self.json_str = json_str
-    
-    def confVehicle(self):
-        #Aqui depois será setrado a instancia
-        router = SumoVehicleRouter(seed=42, min_speed=10, max_speed=30, accel=2, decel=4)
-        router.set_vehicle_routes(num_vehicles=10)
 
     def run_simulation(self):
         grafoFile = SumoFilesGenerator(self.json_str)

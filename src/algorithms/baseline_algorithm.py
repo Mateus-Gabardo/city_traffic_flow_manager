@@ -1,7 +1,7 @@
 import json
 import random
 from src.sumo_simulation import SumoSimulation
-from src.sumo_xml_generator import SumoFilesGenerator
+from src.generators.sumo_xml_generator import SumoFilesGenerator
 import xml.etree.ElementTree as ET
 
 class BaseLineAlgorithm:

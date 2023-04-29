@@ -1,4 +1,3 @@
-import json
 import os
 import subprocess
 
@@ -12,7 +11,10 @@ class SumoFilesGenerator:
             f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
             f.write('<nodes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/nodes_file.xsd">\n')
             for i, v in enumerate(self.graph['vertices']):
-                f.write(f'   <node id="{v}" x="0.0" y="0.0" type="priority"/>\n')
+                eixo = self.graph['coordenadas']
+                x = eixo[v]['x']
+                y = eixo[v]['y']
+                f.write(f'   <node id="{v}" x="{x}" y="{y}" type="priority"/>\n')
             f.write('</nodes>')
 
     def generate_edges_file(self, filename, desteny):
@@ -29,9 +31,9 @@ class SumoFilesGenerator:
         nodes_file = os.path.join(desteny, nodeFile)
         edges_file = os.path.join(desteny, edgeFile)
         net_file = os.path.join(desteny, filename)
-        subprocess.run(["netconvert", "--node-files", nodes_file, "--edge-files", edges_file, "-o", net_file])
+        subprocess.run(["netconvert", "--node-files", "src/sumo_data/nodes.xml", "--edge-files", edges_file, "-o", net_file])
     
-    def generateSumoFile(self, file_name_node, file_name_edge, destiny = "src/instances"):
+    def generateSumoFile(self, file_name_node, file_name_edge, destiny = "src\sumo_data"):
         self.generate_nodes_file(file_name_node, destiny)
         self.generate_edges_file(file_name_edge, destiny)
         self.generate_net_file(destiny, "network.net.xml", file_name_node, file_name_edge)

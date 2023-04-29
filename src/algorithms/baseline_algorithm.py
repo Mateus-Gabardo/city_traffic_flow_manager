@@ -21,12 +21,12 @@ class BaseLineAlgorithm:
         while self.simulation_number > 0:
             json_mod = self.graph
             vertices = json_mod['vertices']
-            arestas = json_mod['arestas']
             restricoes = json_mod['restricoes']
             coordenadas = json_mod['coordenadas']
 
             for i in range(2):
                 current_modification = []
+                arestas = json_mod['arestas']
                 if random.random() < 0.5:
 
                     # escolha aleatoriamente uma das arestas
@@ -38,6 +38,7 @@ class BaseLineAlgorithm:
                     
                     # adicione mais uma lane à aresta escolhida
                     arestas[aresta]["numLanes"] += 1
+                    json_mod['arestas'] = arestas
 
                     # adicione a aresta escolhida na lista de modificações
                     current_modification.append(aresta)
@@ -55,25 +56,26 @@ class BaseLineAlgorithm:
                         "priority": 100
                     }
                     arestas[new_edge_name] = new_edge
+                    json_mod['arestas'] = arestas
                     arestas_criadas.append(new_edge_name)
                     current_modification.append(new_edge_name)
-
-                    # Simular modificação
-                    simulador = SumoSimulation(json_mod)
-                    AvgTravelTime = simulador.run_simulation()
-
-                    # Verificar se a modificação resultou em uma melhora
-                    if AvgTravelTime < BestAvgTravelTime:
-                        BestAvgTravelTime = AvgTravelTime
-                        bestJson = json_mod
-                    
-                    # Printar a melhor melhora no final
-                    print(bestJson)
             
             # Decrementar variável de critério de parada caso essa combinação não tiver sido feita
             alternative_modification = [current_modification[1], current_modification[0]]
             if current_modification not in modifications and alternative_modification not in modifications:
                 self.simulation_number -= 1
+
+                # Simular modificação
+                simulador = SumoSimulation(json_mod)
+                AvgTravelTime = simulador.run_simulation()
+
+                # Verificar se a modificação resultou em uma melhora
+                if AvgTravelTime < BestAvgTravelTime:
+                    BestAvgTravelTime = AvgTravelTime
+                    bestJson = json_mod
+
+        # Printar a melhor melhora no final
+        print(bestJson)
 
 
     def ret_nova_arestas(self, verticeOrigem, arestas, restricoes, arestas_criadas, coordenadas):

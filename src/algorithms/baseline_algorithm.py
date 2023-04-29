@@ -9,9 +9,10 @@ class BaseLineAlgorithm:
         self.graph = dados
         self.simulation_number = nSimulation
 
-    def executarAlgoritmo(self):
+    def executar_algoritmo(self):
         
-        modifications = []
+        modifications = [[]]
+        arestas_criadas = []
 
         # Retorno da simulação da instância inicial
         simulador = SumoSimulation(self.graph)
@@ -21,32 +22,32 @@ class BaseLineAlgorithm:
             json_mod = self.graph
             vertices = json_mod['vertices']
             arestas = json_mod['arestas']
+            restricoes = json_mod['restricoes']
+            coordenadas = json_mod['coordenadas']
 
-            # Escolhendo aleatoriamente uma das arestas
-            aresta = random.choice(list(arestas.keys()))
-
-            # verifique se essa aresta já foi modificada anteriormente
-            isMod = False
-            for random_edge in modifications:
-                if random_edge == aresta:
-                    isMod = True
-            
-            if isMod == False:
-
-                # adicione a aresta escolhida na lista de modificações
-                modifications.append(aresta)
-
+            for i in range(2):
+                current_modification = []
                 if random.random() < 0.5:
+
+                    # escolha aleatoriamente uma das arestas
+                    aresta = random.choice(list(arestas.keys()))
+
+                    # verifique se essa aresta já foi modificada anteriormente
+                    while aresta in modifications:
+                        aresta = random.choice(list(arestas.keys()))
+                    
                     # adicione mais uma lane à aresta escolhida
                     arestas[aresta]["numLanes"] += 1
-                else:
-                    # escolha aleatoriamente um vértice não utilizado
-                    new_vertex = None
-                    while new_vertex is None or new_vertex in vertices:
-                        new_vertex = random.choice(vertices)
 
-                    # crie uma nova aresta conectando a aresta escolhida a um novo vértice
-                    new_edge_name = aresta[0] +'-'+ new_vertex
+                    # adicione a aresta escolhida na lista de modificações
+                    current_modification.append(aresta)
+                else:
+                    # escolha aleatoriamente uma possível nova aresta
+                    vertice = random.choice(list(vertices.keys()))
+
+                    arestas_possiveis = self.ret_nova_arestas(vertice, arestas, restricoes, arestas_criadas, coordenadas)
+
+                    new_edge_name = random.choice(arestas_possiveis)
                     new_edge = {
                         "lenght": random.randint(5, 20),
                         "maxSpeed": random.randint(30, 70),
@@ -54,14 +55,12 @@ class BaseLineAlgorithm:
                         "priority": 100
                     }
                     arestas[new_edge_name] = new_edge
+                    arestas_criadas.append(new_edge_name)
+                    current_modification.append(new_edge_name)
 
-                    # Para cada Aresta será feita uma modificação e simulado novamente.
-                    # Caso seja uma melhora será salva. No final será alterado a melhor melhora.
+                    # Simular modificação
                     simulador = SumoSimulation(json_mod)
                     AvgTravelTime = simulador.run_simulation()
-
-                    # Descrementar variável de critério de parada
-                    self.simulation_number -= 1
 
                     # Verificar se a modificação resultou em uma melhora
                     if AvgTravelTime < BestAvgTravelTime:
@@ -70,3 +69,37 @@ class BaseLineAlgorithm:
                     
                     # Printar a melhor melhora no final
                     print(bestJson)
+            
+            # Decrementar variável de critério de parada caso essa combinação não tiver sido feita
+            alternative_modification = [current_modification[1], current_modification[0]]
+            if current_modification not in modifications and alternative_modification not in modifications:
+                self.simulation_number -= 1
+
+
+    def ret_nova_arestas(self, verticeOrigem, arestas, restricoes, arestas_criadas, coordenadas):
+        arestas_possiveis = []
+        for aresta, vertices in arestas.items():
+            if vertices[0] == verticeOrigem:
+                for aresta2, vertices2 in arestas.items():
+                    if vertices[1] == vertices2[0]:
+                        ponto1 = coordenadas[vertices[0]]
+                        ponto2 = coordenadas[vertices[1]]
+                        ponto3 = coordenadas[vertices2[1]]
+                        if not self.calcular_reta(ponto1, ponto2, ponto3):
+                            nova_aresta = f"{vertices[0]}-{vertices2[1]}"
+                            if nova_aresta not in restricoes and nova_aresta not in arestas_criadas:
+                                arestas_possiveis.append(nova_aresta)
+        return arestas_possiveis
+
+    def calcular_reta(self, ponto1, ponto2, ponto3):
+        # Calcula os coeficientes da reta y = mx + b
+        delta_x = ponto2[0] - ponto1[0]
+        delta_y = ponto2[1] - ponto1[1]
+        m = delta_y / delta_x
+        b = ponto1[1] - m * ponto1[0]
+        # Verifica se o ponto está na reta y = mx + b
+        y_calculado = m * ponto3[0] + b
+        return abs(ponto3[1] - y_calculado) < 1e-6
+
+    def ret_coordenadas(self, vertice, coordenadas):
+        return coordenadas[vertice]

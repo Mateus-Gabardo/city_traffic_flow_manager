@@ -69,8 +69,8 @@ def __gerarIntanciaSumo():
     demands = "src/data/grid/grid.trips.tntp"
     edges = "src/sumo_data/edges.xml"
     output = "src/data/grid/grid.rou.xml"
-    generator = SumoXMLRouterGenerator(demands, edges, output)
-    generator.generate_custom_sumo_routes_file()
+    #generator = SumoXMLRouterGenerator(demands, edges, output)
+    #generator.generate_custom_sumo_routes_file()
     
 def gerar_intancia_grid():
     __gerar_instancia_grid()

@@ -19,7 +19,7 @@ class SumoSimulation:
             sys.exit("please declare environment variable 'SUMO_HOME'")
 
         self.sumoBinary = os.path.join(self.sumo_dir, "sumo")
-        self.sumoCmd = [self.sumoBinary, "-c", "src/instances/config.sumocfg"]
+        self.sumoCmd = [self.sumoBinary, "-c", "src/sumo_data/grid.config.sumocfg"]
         self.json_str = json_str
 
     def run_simulation(self):
@@ -29,8 +29,6 @@ class SumoSimulation:
             traci.start(self.sumoCmd)
         except traci.TraCIException:
             print("Erro ao conectar ao servidor TraCI")
-        
-        self.confVehicle()
 
         SumTravelTime= 0
         CountTravelTime = 0
@@ -38,6 +36,7 @@ class SumoSimulation:
         # Faz uma simulação até que todos os veículos cheguem
         while traci.simulationStep():
             veh_ids = traci.vehicle.getIDList()
+            print(veh_ids)
             for veh_id in veh_ids:
                 
                 # obtém o tempo de viagem do veículo

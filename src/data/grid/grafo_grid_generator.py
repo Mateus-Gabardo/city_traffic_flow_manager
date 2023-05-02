@@ -7,7 +7,7 @@ def __gerar_instancia_grid():
     grafo = GrafoJsonWriter()
 
     atributos = {
-        1: {"length": 20, "maxSpeed": 80, "numLanes": 1, "priority": 80},
+        1: {"length": 20, "maxSpeed": 80, "numLanes": 1, "priority": 100},
         2: {"length": 20, "maxSpeed": 60, "numLanes": 1, "priority": 100}
     }
 
@@ -35,15 +35,16 @@ def __gerar_instancia_grid():
     grafo.adicionar_aresta("8", "9", atributos[1])
 
     # Definindo as coordenadas dos vértices
-    grafo.adicionar_coordenadas("1", "-150.00", "-150.00")
-    grafo.adicionar_coordenadas("2", "-150.00", "150.00")
-    grafo.adicionar_coordenadas("3", "150.00", "150.00")
-    grafo.adicionar_coordenadas("4", "150.00", "-150.00")
+    grafo.adicionar_coordenadas("1", "-150.00", "150.00")
+    grafo.adicionar_coordenadas("4", "0.00", "150.00")
+    grafo.adicionar_coordenadas("7", "150.00", "150.00")
+    grafo.adicionar_coordenadas("2", "-150.00", "0.00")
     grafo.adicionar_coordenadas("5", "0.00", "0.00")
-    grafo.adicionar_coordenadas("6", "150.00", "450.00")
-    grafo.adicionar_coordenadas("7", "150.00", "750.00")
-    grafo.adicionar_coordenadas("8", "-150.00", "750.00")
-    grafo.adicionar_coordenadas("9", "-150.00", "450.00")
+    grafo.adicionar_coordenadas("8", "150.00", "0.00")
+    grafo.adicionar_coordenadas("3", "-150.00", "-150.00")
+    grafo.adicionar_coordenadas("6", "0.00", "-150.00")
+    grafo.adicionar_coordenadas("9", "150.00", "-150.00")
+
 
     restricoes = {
         "1-5" : ["2-4", "4-2"],

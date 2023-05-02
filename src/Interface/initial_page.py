@@ -52,7 +52,7 @@ class initial_page:
         instance = self.selected_instance.get()
 
         # Obtem os dados da instância
-        with open('src/data/exemplo/exemplo.json', 'r') as f:
+        with open('src/data/grid/grid.json', 'r') as f:
             json_str = f.read()
             data = json.loads(json_str)
 

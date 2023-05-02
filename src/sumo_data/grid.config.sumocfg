@@ -11,6 +11,6 @@
 		<time-to-teleport value="0"/>
 		<step-length value="0.1"/>
 		<remote-port value="8080"/>
-		<start value="false"/>
+		<start value="true"/>
 	</gui_only>
 </configuration>

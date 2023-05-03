@@ -31,7 +31,7 @@ class SumoFilesGenerator:
         nodes_file = os.path.join(desteny, nodeFile)
         edges_file = os.path.join(desteny, edgeFile)
         net_file = os.path.join(desteny, filename)
-        subprocess.run(["netconvert", "--node-files", "src/sumo_data/nodes.xml", "--edge-files", edges_file, "-o", net_file])
+        subprocess.run(["netconvert", "--node-files", nodes_file, "--edge-files", edges_file, "-o", net_file])
     
     def generateSumoFile(self, file_name_node, file_name_edge, destiny = "src\sumo_data"):
         self.generate_nodes_file(file_name_node, destiny)

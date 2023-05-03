@@ -1,0 +1,43 @@
+{
+    "vertices": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+    ],
+    "arestas": {
+        "A-B": {
+            "lenght": 10,
+            "maxSpeed": 60,
+            "numLanes": 1,
+            "priority": 100
+        },
+        "B-C": {
+            "lenght": 8,
+            "maxSpeed": 50,
+            "numLanes": 2,
+            "priority": 100
+        },
+        "C-D": {
+            "lenght": 12,
+            "maxSpeed": 40,
+            "numLanes": 2,
+            "priority": 100
+        },
+        "D-E": {
+            "lenght": 15,
+            "maxSpeed": 30,
+            "numLanes": 1,
+            "priority": 100
+        },
+        "E-A": {
+            "lenght": 5,
+            "maxSpeed": 20,
+            "numLanes": 2,
+            "priority": 100
+        }
+    },
+    "coordenadas": {},
+    "restricoes": {}
+}

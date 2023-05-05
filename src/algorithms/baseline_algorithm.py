@@ -13,20 +13,22 @@ class BaseLineAlgorithm:
         
         modifications = [[]]
         arestas_criadas = []
+        simulacoes = int(self.simulation_number)
 
         # Retorno da simulação da instância inicial
         simulador = SumoSimulation(self.graph)
         BestAvgTravelTime = simulador.run_simulation()
 
-        while self.simulation_number > 0:
+        while simulacoes > 0:
             json_mod = self.graph
             vertices = json_mod['vertices']
             restricoes = json_mod['restricoes']
             coordenadas = json_mod['coordenadas']
-
+            arestas = json_mod['arestas']
+            current_modification = []
+            
             for i in range(2):
-                current_modification = []
-                arestas = json_mod['arestas']
+                
                 if random.random() < 0.5:
 
                     # escolha aleatoriamente uma das arestas
@@ -44,7 +46,7 @@ class BaseLineAlgorithm:
                     current_modification.append(aresta)
                 else:
                     # escolha aleatoriamente uma possível nova aresta
-                    vertice = random.choice(list(vertices.keys()))
+                    vertice = random.choice(list(vertices))
 
                     arestas_possiveis = self.ret_nova_arestas(vertice, arestas, restricoes, arestas_criadas, coordenadas)
 
@@ -63,7 +65,8 @@ class BaseLineAlgorithm:
             # Decrementar variável de critério de parada caso essa combinação não tiver sido feita
             alternative_modification = [current_modification[1], current_modification[0]]
             if current_modification not in modifications and alternative_modification not in modifications:
-                self.simulation_number -= 1
+                modifications.append(current_modification)
+                simulacoes -= 1
 
                 # Simular modificação
                 simulador = SumoSimulation(json_mod)
@@ -75,33 +78,56 @@ class BaseLineAlgorithm:
                     bestJson = json_mod
 
         # Printar a melhor melhora no final
-        print(bestJson)
+        print(f'O melhor tempo de viagem foi: {bestJson}')
 
 
     def ret_nova_arestas(self, verticeOrigem, arestas, restricoes, arestas_criadas, coordenadas):
+        arestas_encontradas = []
         arestas_possiveis = []
-        for aresta, vertices in arestas.items():
-            if vertices[0] == verticeOrigem:
-                for aresta2, vertices2 in arestas.items():
-                    if vertices[1] == vertices2[0]:
-                        ponto1 = coordenadas[vertices[0]]
-                        ponto2 = coordenadas[vertices[1]]
-                        ponto3 = coordenadas[vertices2[1]]
-                        if not self.calcular_reta(ponto1, ponto2, ponto3):
-                            nova_aresta = f"{vertices[0]}-{vertices2[1]}"
-                            if nova_aresta not in restricoes and nova_aresta not in arestas_criadas:
-                                arestas_possiveis.append(nova_aresta)
+        for aresta in arestas.keys():
+            if aresta.split('-')[0] == verticeOrigem:
+                arestas_encontradas.append(aresta)
+
+        for aresta_encotrada in arestas_encontradas:
+            for aresta in arestas.keys():
+                if aresta_encotrada.split('-')[1] == aresta.split('-')[0] and aresta_encotrada.split('-')[0] != aresta.split('-')[1]:
+                    ponto1 = self.ret_coordenadas(aresta_encotrada.split('-')[0], coordenadas)
+                    ponto2 = self.ret_coordenadas(aresta.split('-')[1], coordenadas)
+                    ponto3 = self.ret_coordenadas(aresta.split('-')[0], coordenadas)
+                    if self.calcular_reta(ponto1, ponto2, ponto3) == False:
+                        if aresta_encotrada.split('-')[0]+'-'+aresta.split('-')[1] not in arestas_possiveis:
+                            arestas_possiveis.append(aresta_encotrada.split('-')[0]+'-'+aresta.split('-')[1])
+
+        restricoes_aresta = restricoes.keys()
+        for aresta_possivel in arestas_possiveis:
+            if aresta_possivel in restricoes_aresta:
+                arestas_possiveis.remove(aresta_possivel)
+            if aresta_possivel in arestas_criadas:
+                arestas_possiveis.remove(aresta_possivel)
+        
         return arestas_possiveis
 
     def calcular_reta(self, ponto1, ponto2, ponto3):
-        # Calcula os coeficientes da reta y = mx + b
-        delta_x = ponto2[0] - ponto1[0]
-        delta_y = ponto2[1] - ponto1[1]
-        m = delta_y / delta_x
-        b = ponto1[1] - m * ponto1[0]
-        # Verifica se o ponto está na reta y = mx + b
-        y_calculado = m * ponto3[0] + b
-        return abs(ponto3[1] - y_calculado) < 1e-6
+
+        # Calcula a equação da reta y = mx + b, onde m é o coeficiente angular e b é o coeficiente linear.
+        if ponto2[0] - ponto1[0] != 0:
+            m = (ponto2[1] - ponto1[1]) / (ponto2[0] - ponto1[0])
+            b = ponto1[1] - m * ponto1[0]
+        else:
+            # Caso a reta seja vertical, não há coeficiente angular e b é simplesmente o valor de x do ponto.
+            m = float('inf')
+            b = ponto1[0]
+
+        # Verifica se o ponto está na reta.
+        return ponto3[1] == m * ponto3[0] + b
 
     def ret_coordenadas(self, vertice, coordenadas):
-        return coordenadas[vertice]
+        for coordenada in coordenadas.keys():
+            if vertice == coordenada:
+                x = float(coordenadas[coordenada]["x"])
+                y = float(coordenadas[coordenada]["y"])
+
+        retorno = []
+        retorno.append(x)
+        retorno.append(y)
+        return retorno

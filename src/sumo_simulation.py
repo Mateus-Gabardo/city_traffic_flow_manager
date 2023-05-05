@@ -1,10 +1,10 @@
 import os
+import subprocess
 import sys
 import shutil
 from src.generators.sumo_xml_demand_generator import SumoXmlDemandGenerator
-import traci
-import xml.etree.ElementTree as ET
 from src.generators.sumo_xml_generator import SumoFilesGenerator
+import sumolib
 
 
 class SumoSimulation:
@@ -34,6 +34,25 @@ class SumoSimulation:
         # Gera a demanda de maneira aleatória mas com um seed randomico
         demand_generator.generateDemand()
 
+    
+    def __average_speed(self):
+        speedSum = 0.0
+        edgeCount = 0
+        for edge in sumolib.xml.parse('src/sumo_data/output.xml', ['edge']):
+            speedSum += float(edge.speed)
+            edgeCount += 1
+        avgSpeed = speedSum / edgeCount
+        #A velocidade média na borda/faixa dentro do intervalo relatado.
+        print('Velocidade média da simulação:', avgSpeed)
+        return avgSpeed
+
+    def __run_sumo(self):
+        output_file = "src/sumo_data/output.xml"
+        command = self.sumoCmd + ["--edgedata-output", output_file]
+        subprocess.call(command)
+    
+
+
     def run_simulation(self):
         # Gerar os arquivos de configuração e de rotas
         grafoFile = SumoFilesGenerator(self.json_str)
@@ -41,32 +60,9 @@ class SumoSimulation:
 
         self.gerarRotas()
 
-        # Iniciar a simulação
-        try:
-            traci.start(self.sumoCmd)
-        except traci.TraCIException:
-            print("Erro ao conectar ao servidor TraCI")
-            return None
+        # Executamos o sumo
+        self.__run_sumo()
+        return self.__average_speed()
 
-        SumTravelTime = 0
-        CountTravelTime = 0
 
-        # Fazer a simulação até que todos os veículos cheguem ao destino
-        while traci.simulation.getMinExpectedNumber() > 0:
-            traci.simulationStep()
-            veh_ids = traci.vehicle.getIDList()
-            for veh_id in veh_ids:
-                # Obter o tempo de viagem do veículo
-                SumTravelTime += traci.vehicle.getAdaptedTraveltime(veh_id, traci.simulation.getTime(), traci.vehicle.getRoadID(veh_id))
-                CountTravelTime += 1
-
-        # Encerrar a simulação e calcular o tempo médio de viagem
-        traci.close()
-        AvgTravelTime = SumTravelTime / CountTravelTime
-
-        print('--------------------------------------------------------------------------------------------')
-        print(f'Finalizou simulação. Tempo de Viagem: {AvgTravelTime:.2f}')
-        print('--------------------------------------------------------------------------------------------')
-
-        return AvgTravelTime
 

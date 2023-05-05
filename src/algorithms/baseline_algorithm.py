@@ -26,6 +26,7 @@ class BaseLineAlgorithm:
             coordenadas = json_mod['coordenadas']
             arestas = json_mod['arestas']
             current_modification = []
+            bestJson = self.graph
             
             for i in range(2):
                 

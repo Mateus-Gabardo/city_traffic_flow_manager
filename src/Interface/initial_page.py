@@ -71,7 +71,7 @@ class ResultsPage:
     def __init__(self, master, avg_travel_time):
         self.master = master
         self.master.title('Resultados')
-        self.master.geometry('500x500')
+        self.master.geometry('100x50')
 
         # Exibe os resultados
         self.result_label = tk.Label(self.master, text=f"Tempo médio de viagem: {avg_travel_time}")

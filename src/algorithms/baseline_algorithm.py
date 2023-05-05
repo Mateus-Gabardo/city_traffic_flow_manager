@@ -30,11 +30,11 @@ class BaseLineAlgorithm:
             
             for i in range(2):
                 
-                # if random.random() < 0.5:
-                #     json_mod, current_modification = self.nova_lane(arestas, modifications, json_mod, current_modification)
+                if random.random() < 0.5:
+                    json_mod, current_modification = self.nova_lane(arestas, modifications, json_mod, current_modification)
                    
-                # else:
-                json_mod, current_modification = self.nova_aresta(vertices, arestas, restricoes, arestas_criadas, coordenadas, json_mod, current_modification)
+                else:
+                    json_mod, current_modification = self.nova_aresta(vertices, arestas, restricoes, arestas_criadas, coordenadas, json_mod, current_modification)
             
             # Decrementar variável de critério de parada caso essa combinação não tiver sido feita
             alternative_modification = [current_modification[1], current_modification[0]]
@@ -135,7 +135,7 @@ class BaseLineAlgorithm:
         # Verifica se o ponto 3 está na reta
         x3, y3 = ponto3
         if ponto1[0] == ponto2[0] == x3 or ponto1[1] == ponto2[1] == y3:
-            return False
+            return True
         else:
             if abs(y3 - (m * x3 + b)) < 1e-10:  # Usamos a função abs() para evitar problemas com coordenadas negativas
                 return True

@@ -1,5 +1,6 @@
 import json
 import random
+import copy
 from src.sumo_simulation import SumoSimulation
 from src.generators.sumo_xml_generator import SumoFilesGenerator
 import xml.etree.ElementTree as ET
@@ -14,19 +15,20 @@ class BaseLineAlgorithm:
         modifications = []
         arestas_criadas = []
         simulacoes = int(self.simulation_number)
+        json_inicial = self.graph
+        bestJson = json_inicial
 
         # Retorno da simulação da instância inicial
         simulador = SumoSimulation(self.graph)
         BestAvgTravelTime = simulador.run_simulation()
 
         while simulacoes > 0:
-            json_mod = self.graph
+            json_mod = copy.deepcopy(json_inicial)
             vertices = json_mod['vertices']
             restricoes = json_mod['restricoes']
             coordenadas = json_mod['coordenadas']
             arestas = json_mod['arestas']
             current_modification = []
-            bestJson = self.graph
             
             for i in range(2):
                 
@@ -42,6 +44,7 @@ class BaseLineAlgorithm:
                 modifications.append(current_modification)
                 simulacoes -= 1
 
+                print(f"Modificação: {modifications}")
                 # Simular modificação
                 simulador = SumoSimulation(json_mod)
                 AvgTravelTime = simulador.run_simulation()
@@ -87,7 +90,7 @@ class BaseLineAlgorithm:
                     "lenght": random.randint(5, 20),
                     "maxSpeed": random.randint(30, 70),
                     "numLanes": 1,
-                    "priority": 100
+                    "priority": random.randint(50, 100)
                 }
                 arestas[new_edge_name] = new_edge
                 json_mod['arestas'] = arestas

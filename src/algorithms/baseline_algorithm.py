@@ -11,7 +11,7 @@ class BaseLineAlgorithm:
 
     def executar_algoritmo(self):
         
-        modifications = [[]]
+        modifications = []
         arestas_criadas = []
         simulacoes = int(self.simulation_number)
 
@@ -30,11 +30,11 @@ class BaseLineAlgorithm:
             
             for i in range(2):
                 
-                if random.random() < 0.5:
-                    json_mod, current_modification = self.novaLane(modifications, json_mod, current_modification)
+                # if random.random() < 0.5:
+                #     json_mod, current_modification = self.nova_lane(arestas, modifications, json_mod, current_modification)
                    
-                else:
-                    json_mod, current_modification = self.novaAresta(vertices, arestas, restricoes, arestas_criadas, coordenadas, json_mod, current_modification)
+                # else:
+                json_mod, current_modification = self.nova_aresta(vertices, arestas, restricoes, arestas_criadas, coordenadas, json_mod, current_modification)
             
             # Decrementar variável de critério de parada caso essa combinação não tiver sido feita
             alternative_modification = [current_modification[1], current_modification[0]]
@@ -52,9 +52,11 @@ class BaseLineAlgorithm:
                     bestJson = json_mod
 
         # Printar a melhor melhora no final
-        print(f'O melhor tempo de viagem foi: {bestJson}')
+        print(f'O melhor tempo de viagem foi: {BestAvgTravelTime}')
 
-    def novaLane(arestas, modifications, json_mod, current_modification):
+        return BestAvgTravelTime
+
+    def nova_lane(self, arestas, modifications, json_mod, current_modification):
          # escolha aleatoriamente uma das arestas
         aresta = random.choice(list(arestas.keys()))
 
@@ -71,12 +73,13 @@ class BaseLineAlgorithm:
 
         return json_mod, current_modification
 
-    def novaAresta(self, vertices, arestas, restricoes, arestas_criadas, coordenadas, json_mod, current_modification):
-        while len(current_modification) == 0:
+    def nova_aresta(self, vertices, arestas, restricoes, arestas_criadas, coordenadas, json_mod, current_modification):
+        tamanho_inicial = len(current_modification)
+        while tamanho_inicial == len(current_modification):
             # escolha aleatoriamente uma possível nova aresta
             vertice = random.choice(list(vertices))
 
-            arestas_possiveis = self.ret_nova_arestas(vertice, arestas, restricoes, arestas_criadas, coordenadas)
+            arestas_possiveis = self.ret_nova_arestas(vertice, arestas, arestas_criadas, coordenadas)
 
             if len(arestas_possiveis) > 0:
                 new_edge_name = random.choice(arestas_possiveis)
@@ -89,10 +92,13 @@ class BaseLineAlgorithm:
                 arestas[new_edge_name] = new_edge
                 json_mod['arestas'] = arestas
                 arestas_criadas.append(new_edge_name)
+                if new_edge_name in restricoes.keys():
+                    for restricao in restricoes[new_edge_name]:
+                        arestas_criadas.append(restricao)
                 current_modification.append(new_edge_name)
         return json_mod, current_modification
 
-    def ret_nova_arestas(self, verticeOrigem, arestas, restricoes, arestas_criadas, coordenadas):
+    def ret_nova_arestas(self, verticeOrigem, arestas, arestas_criadas, coordenadas):
         arestas_encontradas = []
         arestas_possiveis = []
         for aresta in arestas.keys():
@@ -109,10 +115,7 @@ class BaseLineAlgorithm:
                         if aresta_encotrada.split('-')[0]+'-'+aresta.split('-')[1] not in arestas_possiveis:
                             arestas_possiveis.append(aresta_encotrada.split('-')[0]+'-'+aresta.split('-')[1])
 
-        restricoes_aresta = restricoes.keys()
         for aresta_possivel in arestas_possiveis:
-            if aresta_possivel in restricoes_aresta:
-                arestas_possiveis.remove(aresta_possivel)
             if aresta_possivel in arestas_criadas:
                 arestas_possiveis.remove(aresta_possivel)
         
@@ -131,10 +134,13 @@ class BaseLineAlgorithm:
 
         # Verifica se o ponto 3 está na reta
         x3, y3 = ponto3
-        if abs(y3 - (m * x3 + b)) < 1e-10:  # Usamos a função abs() para evitar problemas com coordenadas negativas
-            return True
-        else:
+        if ponto1[0] == ponto2[0] == x3 or ponto1[1] == ponto2[1] == y3:
             return False
+        else:
+            if abs(y3 - (m * x3 + b)) < 1e-10:  # Usamos a função abs() para evitar problemas com coordenadas negativas
+                return True
+            else:
+                return False
 
     def ret_coordenadas(self, vertice, coordenadas):
         for coordenada in coordenadas.keys():

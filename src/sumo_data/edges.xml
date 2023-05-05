@@ -24,4 +24,8 @@
    <edge id="8-5" from="8" to="5" priority="100" numLanes="1" speed="60" />
    <edge id="9-6" from="9" to="6" priority="100" numLanes="1" speed="80" />
    <edge id="9-8" from="9" to="8" priority="100" numLanes="1" speed="80" />
+   <edge id="6-2" from="6" to="2" priority="100" numLanes="1" speed="68" />
+   <edge id="8-4" from="8" to="4" priority="100" numLanes="1" speed="61" />
+   <edge id="4-6" from="4" to="6" priority="100" numLanes="1" speed="63" />
+   <edge id="8-1" from="8" to="1" priority="100" numLanes="1" speed="45" />
 </edges>

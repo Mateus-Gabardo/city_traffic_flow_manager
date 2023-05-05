@@ -44,3 +44,4 @@ source ~/.bash_profile
 O SUMO utiliza uma série de arquivo de rotas e de configuração para gerar as simulações. As explicações detalhadas podem ser verificadas acessando o seguinte endereço:
 <https://intelaligent.github.io/tctb/post-learning-traci-tls.html>
 <https://medium.com/@nukualways/simulation-using-sumo-55f101e6bd7e>
+<https://sumo.dlr.de/docs/Tools/Sumolib.html>

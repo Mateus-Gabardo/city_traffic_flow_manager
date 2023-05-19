@@ -39,7 +39,7 @@ class SumoSimulation:
         speedSum = 0.0
         edgeCount = 0
         for edge in sumolib.xml.parse('src/sumo_data/output.xml', ['edge']):
-            speedSum += float(edge.speed)
+            speedSum += float(edge.traveltime)
             edgeCount += 1
         avgSpeed = speedSum / edgeCount
         #A velocidade média na borda/faixa dentro do intervalo relatado.

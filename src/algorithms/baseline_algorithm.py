@@ -87,10 +87,10 @@ class BaseLineAlgorithm:
             if len(arestas_possiveis) > 0:
                 new_edge_name = random.choice(arestas_possiveis)
                 new_edge = {
-                    "lenght": random.randint(5, 20),
+                    "lenght": 20,
                     "maxSpeed": random.randint(30, 70),
                     "numLanes": 1,
-                    "priority": random.randint(50, 100)
+                    "priority": random.randint(80, 100)
                 }
                 arestas[new_edge_name] = new_edge
                 json_mod['arestas'] = arestas

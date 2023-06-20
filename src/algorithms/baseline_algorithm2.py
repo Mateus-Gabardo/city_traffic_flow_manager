@@ -28,7 +28,6 @@ class BaseLineAlgorithm:
         while simulacoes > 0:
             json_mod = copy.deepcopy(json_inicial)
             vertices = json_mod['vertices']
-            restricoes = json_mod['restricoes']
             coordenadas = json_mod['coordenadas']
             arestas = json_mod['arestas']
             current_modification = []
@@ -39,7 +38,7 @@ class BaseLineAlgorithm:
                     json_mod, current_modification = self.nova_lane(arestas, modifications, json_mod, current_modification)
                    
                 else:
-                    json_mod, current_modification = self.nova_aresta(vertices, arestas, restricoes, arestas_criadas, coordenadas, json_mod, current_modification)
+                    json_mod, current_modification = self.nova_aresta(vertices, arestas, arestas_criadas, coordenadas, json_mod, current_modification)
             
             # Decrementar variável de critério de parada caso essa combinação não tiver sido feita
             alternative_modification = [current_modification[1], current_modification[0]]
@@ -86,7 +85,7 @@ class BaseLineAlgorithm:
 
         return json_mod, current_modification
 
-    def nova_aresta(self, vertices, arestas, restricoes, arestas_criadas, coordenadas, json_mod, current_modification):
+    def nova_aresta(self, vertices, arestas, arestas_criadas, coordenadas, json_mod, current_modification):
         tamanho_inicial = len(current_modification)
         while tamanho_inicial == len(current_modification):
             # escolha aleatoriamente uma possível nova aresta
@@ -115,9 +114,6 @@ class BaseLineAlgorithm:
                         arestas[new_edge_name] = new_edge
                         json_mod['arestas'] = arestas
                         arestas_criadas.append(new_edge_name)
-                        if new_edge_name in restricoes.keys():
-                            for restricao in restricoes[new_edge_name]:
-                                arestas_criadas.append(restricao)
                         current_modification.append(new_edge_name)
                     else:
                         arestas_possiveis.remove(new_edge_name)
@@ -136,10 +132,7 @@ class BaseLineAlgorithm:
         for aresta_encotrada in arestas_encontradas:
             for aresta in arestas.keys():
                 if aresta_encotrada.split('-')[1] == aresta.split('-')[0] and aresta_encotrada.split('-')[0] != aresta.split('-')[1]:
-                    ponto1 = self.ret_coordenadas(aresta_encotrada.split('-')[0], coordenadas)
-                    ponto2 = self.ret_coordenadas(aresta.split('-')[1], coordenadas)
-                    ponto3 = self.ret_coordenadas(aresta.split('-')[0], coordenadas)
-                    if self.calcular_reta(ponto1, ponto2, ponto3) == False:
+                    if self.calcular_reta(arestas.keys(), aresta_encotrada.split('-')[0], aresta.split('-')[1], aresta.split('-')[0], coordenadas) == False:
                         if aresta_encotrada.split('-')[0]+'-'+aresta.split('-')[1] not in arestas_possiveis:
                             arestas_possiveis.append(aresta_encotrada.split('-')[0]+'-'+aresta.split('-')[1])
 
@@ -149,7 +142,13 @@ class BaseLineAlgorithm:
         
         return arestas_possiveis
 
-    def calcular_reta(self, ponto1, ponto2, ponto3):
+    def calcular_reta(self, arestas, vertice1, vertice2, vertice3, coordenadas):
+        
+        isNotPossivel = False
+        arestas_ponto2 = []
+        ponto1 = self.ret_coordenadas(vertice1, coordenadas)
+        ponto2 = self.ret_coordenadas(vertice2, coordenadas)
+        ponto3 = self.ret_coordenadas(vertice3, coordenadas)
 
         # Calcula a equação da reta y = mx + b, onde m é o coeficiente angular e b é o coeficiente linear.
         if ponto2[0] - ponto1[0] != 0:
@@ -163,12 +162,35 @@ class BaseLineAlgorithm:
         # Verifica se o ponto 3 está na reta
         x3, y3 = ponto3
         if ponto1[0] == ponto2[0] == x3 or ponto1[1] == ponto2[1] == y3:
-            return True
+            isNotPossivel = True
         else:
             if abs(y3 - (m * x3 + b)) < 1e-10:  # Usamos a função abs() para evitar problemas com coordenadas negativas
-                return True
-            else:
-                return False
+                isNotPossivel = True
+
+        # Calcular as retas do ponto 2 para ver ser cruza com a nova reta:
+        for aresta in arestas:
+            vertice_a, vertice_b = aresta.split('-')
+            if vertice_a == vertice3 or vertice_b == vertice3:
+                ponto_a = self.ret_coordenadas(vertice_a, coordenadas)
+                ponto_b = self.ret_coordenadas(vertice_b, coordenadas)
+
+                if ponto_a[0] - ponto_b[0] != 0:
+                    m_aresta = (ponto_a[1] - ponto_b[1]) / (ponto_a[0] - ponto_b[0])
+                    b_aresta = ponto_a[1] - m_aresta * ponto_a[0]
+                else:
+                    m_aresta = float('inf')
+                    b_aresta = ponto_a[0]
+
+                if m != m_aresta:
+                    x_intersecao = (b_aresta - b) / (m - m_aresta)
+                    y_intersecao = m * x_intersecao + b
+
+                    if min(ponto_a[0], ponto_b[0]) <= x_intersecao <= max(ponto_a[0], ponto_b[0]) and \
+                    min(ponto_a[1], ponto_b[1]) <= y_intersecao <= max(ponto_a[1], ponto_b[1]):
+                        isNotPossivel = True
+                        break
+                    
+        return isNotPossivel
 
     def ret_coordenadas(self, vertice, coordenadas):
         for coordenada in coordenadas.keys():

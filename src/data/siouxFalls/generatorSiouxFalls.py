@@ -1,6 +1,8 @@
 import json
 from src.generators.grafo_generator import GrafoJsonWriter
 from src.generators.sumo_xml_generator import SumoFilesGenerator
+from src.generators.OD_matrix_converter import ODMatrixConverter
+from src.generators.sumo_xml_demand_generator import SumoXmlDemandGenerator
 
 def __gerar_instancia_sioux_falls():
 
@@ -162,32 +164,31 @@ def __gerar_instancia_sioux_falls():
     ]
 
     eixos = [
-        {"node": 1, "x": -96.77041974, "y": 43.61282792},
-        {"node": 2, "x": -96.71125063, "y": 43.60581298},
-        {"node": 3, "x": -96.77430341, "y": 43.5729616},
-        {"node": 4, "x": -96.74716843, "y": 43.56365362},
-        {"node": 5, "x": -96.73156909, "y": 43.56403357},
-        {"node": 6, "x": -96.71164389, "y": 43.58758553},
-        {"node": 7, "x": -96.69342281, "y": 43.5638436},
-        {"node": 8, "x": -96.71138171, "y": 43.56232379},
-        {"node": 9, "x": -96.73124137, "y": 43.54859634},
-        {"node": 10, "x": -96.73143801, "y": 43.54527088},
-        {"node": 11, "x": -96.74684071, "y": 43.54413068},
-        {"node": 12, "x": -96.78013678, "y": 43.54394065},
-        {"node": 13, "x": -96.79337655, "y": 43.49070718},
-        {"node": 14, "x": -96.75103549, "y": 43.52930613},
-        {"node": 15, "x": -96.73150355, "y": 43.52940117},
-        {"node": 16, "x": -96.71138171, "y": 43.54674361},
-        {"node": 17, "x": -96.71138171, "y": 43.54128009},
-        {"node": 18, "x": -96.69407825, "y": 43.54674361},
-        {"node": 19, "x": -96.71131617, "y": 43.52959125},
-        {"node": 20, "x": -96.71118508, "y": 43.5153335},
-        {"node": 21, "x": -96.7309792, "y": 43.51048509},
-        {"node": 22, "x": -96.73124137, "y": 43.51485818},
-        {"node": 23, "x": -96.75090441, "y": 43.51485818},
-        {"node": 24, "x": -96.74920028, "y": 43.50316422}
+        {"node": 1, "x": 500, "y": 5100},
+        {"node": 2, "x": 3200, "y": 5100},
+        {"node": 3, "x": 500, "y": 4400},
+        {"node": 4, "x": 1300, "y": 4400},
+        {"node": 5, "x": 2200, "y": 4400},
+        {"node": 6, "x": 3200, "y": 4400},
+        {"node": 7, "x": 4200, "y": 3800},
+        {"node": 8, "x": 3200, "y": 3800},
+        {"node": 9, "x": 2200, "y": 3800},
+        {"node": 10, "x": 2200, "y": 3200},
+        {"node": 11, "x": 1300, "y": 3200},
+        {"node": 12, "x": 500, "y": 3200},
+        {"node": 13, "x": 500, "y": 500},
+        {"node": 14, "x": 1300, "y": 1900},
+        {"node": 15, "x": 2200, "y": 1900},
+        {"node": 16, "x": 3200, "y": 3200},
+        {"node": 17, "x": 3200, "y": 2600},
+        {"node": 18, "x": 4200, "y": 3200},
+        {"node": 19, "x": 3200, "y": 1900},
+        {"node": 20, "x": 3200, "y": 500},
+        {"node": 21, "x": 2200, "y": 500},
+        {"node": 22, "x": 2200, "y": 1300},
+        {"node": 23, "x": 1300, "y": 1300},
+        {"node": 24, "x": 1300, "y": 500}
     ]
-
 
     for origem, destino, atributo in arestas:
         grafo.adicionar_aresta(origem, destino, atributo)
@@ -205,6 +206,20 @@ def __gerarIntanciaSumo():
     grafoFile = SumoFilesGenerator(data)
     grafoFile.generateSumoFile(file_name_edge="edges.xml", file_name_node="nodes.xml")
 
-def gerar_intancia_sioux_falls():
+def __gerarDemandaOD(scala):
+    inputFile = "src/data/siouxFalls/SiouxFalls_trips.tntp"
+    outputFile = "src/data/siouxFalls/siouxFalls_taz.xml"
+    ODConverter = ODMatrixConverter(inputFile, outputFile)
+    ODConverter.convert_OD_matrix(scala)
+    network_file = "src/sumo_data/network.net.xml"
+    taz_file = "src/data/siouxFalls/siouxFalls_taz.xml"
+    output_file = "src/sumo_data/routes.xml"
+    demand_generator = SumoXmlDemandGenerator(network_file, output_file)
+    demand_generator.generateDemandByTaz(taz_file)
+
+
+
+def gerar_intancia_sioux_falls(scala):
     __gerar_instancia_sioux_falls()
     __gerarIntanciaSumo()
+    __gerarDemandaOD(scala)

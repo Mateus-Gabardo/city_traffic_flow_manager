@@ -1,7 +1,6 @@
 import json
 from src.generators.grafo_generator import GrafoJsonWriter
 from src.generators.sumo_xml_generator import SumoFilesGenerator
-from src.generators.sumo_xml_router_generator import SumoXMLRouterGenerator
 
 def __gerar_instancia_grid():
     grafo = GrafoJsonWriter()

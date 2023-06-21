@@ -24,24 +24,30 @@ class initial_page:
         self.master.geometry(f"{self.largura}x{self.altura}+{pos_x}+{pos_y}")
 
         # Seletor de Instâncias
-        self.instances = ['Instância 1', 'Instância 2']
+        self.instances = ['Grid 4x4', 'Sioux Falls']
         self.selected_instance = tk.StringVar()
         self.selected_instance.set(self.instances[0])
         self.instance_selector = tk.OptionMenu(self.master, self.selected_instance, *self.instances)
         self.instance_selector.pack(pady=10)
 
         # Seletor de Algoritmos de solução
-        self.algorithms = ['Baseline']
+        self.algorithms = ['Baseline','Local Search','Iterated Local Search']
         self.selected_algorithm = tk.StringVar()
         self.selected_algorithm.set(self.algorithms[0])
         self.algorithm_selector = tk.OptionMenu(self.master, self.selected_algorithm, *self.algorithms)
         self.algorithm_selector.pack(pady=10)
 
-        # Parametros de entrada do Algoritmo escolhido
+        # Número de simulações executadas
         self.simulation_label = tk.Label(self.master, text='Número de Simulações:')
         self.simulation_label.pack(pady=10)
         self.simulation_entry = tk.Entry(self.master)
         self.simulation_entry.pack(pady=10)
+
+        # Quilometragem máxima (budget)
+        self.simulation_label2 = tk.Label(self.master, text='Km Máximo(Busget):')
+        self.simulation_label2.pack(pady=10)
+        self.simulation_entry2 = tk.Entry(self.master)
+        self.simulation_entry2.pack(pady=10)
 
         # Botão de execução
         self.execute_button = tk.Button(self.master, text='Executar', command=self.execute_algorithm)

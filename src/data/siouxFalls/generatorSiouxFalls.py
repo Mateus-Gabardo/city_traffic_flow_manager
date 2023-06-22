@@ -222,4 +222,4 @@ def __gerarDemandaOD(scala):
 def gerar_intancia_sioux_falls(scala):
     __gerar_instancia_sioux_falls()
     __gerarIntanciaSumo()
-    __gerarDemandaOD(scala)
+    #__gerarDemandaOD(scala)

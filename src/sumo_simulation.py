@@ -29,10 +29,10 @@ class SumoSimulation:
         trip_depart_period = 1
         random_seed = 42
 
-        demand_generator = SumoXmlDemandGenerator(network_file, output_file, num_trips, trip_depart_period, random_seed)
+        demand_generator = SumoXmlDemandGenerator(network_file, output_file)
 
         # Gera a demanda de maneira aleatória mas com um seed randomico
-        demand_generator.generateDemand()
+        demand_generator.generateDemand(num_trips, trip_depart_period, random_seed)
 
     
     def __average_speed(self):

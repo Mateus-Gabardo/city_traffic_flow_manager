@@ -1,6 +1,7 @@
 import json
 import tkinter as tk
 from src.algorithms.baseline_algorithm import BaseLineAlgorithm
+from src.algorithms.baseline_algorithm2 import BaseLineAlgorithm2
 
 
 class initial_page:
@@ -10,7 +11,7 @@ class initial_page:
 
         # Define a largura e altura da janela
         self.largura = 500
-        self.altura = 300
+        self.altura = 500
 
         # Obtém a largura e altura da tela
         largura_tela = self.master.winfo_screenwidth()
@@ -31,7 +32,7 @@ class initial_page:
         self.instance_selector.pack(pady=10)
 
         # Seletor de Algoritmos de solução
-        self.algorithms = ['Baseline','Local Search','Iterated Local Search']
+        self.algorithms = ['Baseline','Baseline2','Local Search','Iterated Local Search']
         self.selected_algorithm = tk.StringVar()
         self.selected_algorithm.set(self.algorithms[0])
         self.algorithm_selector = tk.OptionMenu(self.master, self.selected_algorithm, *self.algorithms)
@@ -44,7 +45,7 @@ class initial_page:
         self.simulation_entry.pack(pady=10)
 
         # Quilometragem máxima (budget)
-        self.simulation_label2 = tk.Label(self.master, text='Km Máximo(Busget):')
+        self.simulation_label2 = tk.Label(self.master, text='Km Máximo(Budget):')
         self.simulation_label2.pack(pady=10)
         self.simulation_entry2 = tk.Entry(self.master)
         self.simulation_entry2.pack(pady=10)
@@ -65,8 +66,13 @@ class initial_page:
         # Executa o algoritmo selecionado
         algorithm = self.selected_algorithm.get()
         simulationNumber = self.simulation_entry.get()
+        budget = self.simulation_entry2.get()
         if algorithm == "Baseline":
             baseline = BaseLineAlgorithm(data, simulationNumber)
+            avg_travel_time = baseline.executar_algoritmo()
+        
+        if algorithm == "Baseline2":
+            baseline = BaseLineAlgorithm2(data, simulationNumber, budget)
             avg_travel_time = baseline.executar_algoritmo()
 
         # Exibe os resultados
@@ -84,7 +90,6 @@ class ResultsPage:
         self.result_label.pack(pady=10)
 
 
-#if __name__ == '__main__':
 root = tk.Tk()
 app = initial_page(root)
 root.mainloop()

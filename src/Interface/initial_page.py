@@ -2,6 +2,7 @@ import json
 import tkinter as tk
 from src.algorithms.baseline_algorithm import BaseLineAlgorithm
 from src.algorithms.baseline_algorithm2 import BaseLineAlgorithm2
+from src.algorithms.local_search_algorithm import LocalSearchAlgorithm
 
 
 class initial_page:
@@ -11,7 +12,7 @@ class initial_page:
 
         # Define a largura e altura da janela
         self.largura = 500
-        self.altura = 300
+        self.altura = 500
 
         # Obtém a largura e altura da tela
         largura_tela = self.master.winfo_screenwidth()
@@ -39,15 +40,24 @@ class initial_page:
         self.algorithm_selector = tk.OptionMenu(self.master, self.selected_algorithm, *self.algorithms)
         self.algorithm_selector.pack(pady=10)
 
+        # Estratégia de melhoria
+        self.simulation_label_melhoria = tk.Label(self.master, text='Estratégia de melhoria')
+        self.simulation_label_melhoria.pack(pady=2)
+        self.estrategia_melhoria = ['Primeira melhoria','Melhor melhoria']
+        self.selected_estrategia = tk.StringVar()
+        self.selected_estrategia.set(self.estrategia_melhoria[0])
+        self.estrategia_selector = tk.OptionMenu(self.master, self.selected_estrategia, *self.estrategia_melhoria)
+        self.estrategia_selector.pack(pady=10)
+
         # Número de simulações executadas
         self.simulation_label = tk.Label(self.master, text='Número de Simulações:')
-        self.simulation_label.pack(pady=10)
+        self.simulation_label.pack(pady=2)
         self.simulation_entry = tk.Entry(self.master)
         self.simulation_entry.pack(pady=10)
 
         # Quilometragem máxima (budget)
         self.simulation_label2 = tk.Label(self.master, text='Km Máximo(Budget):')
-        self.simulation_label2.pack(pady=10)
+        self.simulation_label2.pack(pady=2)
         self.simulation_entry2 = tk.Entry(self.master)
         self.simulation_entry2.pack(pady=10)
 
@@ -71,6 +81,12 @@ class initial_page:
         algorithm = self.selected_algorithm.get()
         simulationNumber = self.simulation_entry.get()
         budget = self.simulation_entry2.get()
+        estrategia = self.selected_estrategia.get()
+        if(estrategia == 'Primeira melhoria'):
+            estrategia = 2
+        else:
+            estrategia = 1
+
         if algorithm == "Baseline":
             baseline = BaseLineAlgorithm(self.data, simulationNumber, budget)
             avg_travel_time = baseline.executar_algoritmo()
@@ -78,6 +94,9 @@ class initial_page:
         if algorithm == "Baseline2":
             baseline = BaseLineAlgorithm2(self.data, simulationNumber, budget)
             avg_travel_time = baseline.executar_algoritmo()
+
+        if algorithm == "Local Search":
+            avg_travel_time = LocalSearchAlgorithm.localSearch(self.data, int(budget), int(simulationNumber), estrategia)
 
         # Exibe os resultados
         # self.results_page = ResultsPage(self.master, avg_travel_time)

@@ -8,7 +8,7 @@ import sumolib
 
 
 class SumoSimulation:
-    def __init__(self, json_str):
+    def __init__(self, json_str, trips = 50):
         sumo_path = shutil.which('sumo')
         self.sumo_dir = os.path.dirname(sumo_path)
 
@@ -21,11 +21,12 @@ class SumoSimulation:
         self.sumoBinary = os.path.join(self.sumo_dir, "sumo")
         self.sumoCmd = [self.sumoBinary, "-c", "src/sumo_data/config.sumocfg"]
         self.json_str = json_str
+        self.trips = trips
     
     def gerarRotas(self):
         network_file = "src/sumo_data/network.net.xml"
         output_file = "src/sumo_data/routes.xml"
-        num_trips = 50
+        num_trips = self.trips
         trip_depart_period = 1
         random_seed = 42
 

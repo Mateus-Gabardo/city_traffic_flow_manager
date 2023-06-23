@@ -10,7 +10,7 @@ class LocalSearchAlgorithm:
         pass
 
     @staticmethod
-    def searchBestNeighbor(network, budget, estrategia):
+    def searchBestNeighbor(network, budget, estrategia, vehicles):
         no1, no2 = LocalSearchAlgorithm.getTwoRandomNodes(network)
         arestas_relacionadas = LocalSearchAlgorithm.getRelatedEdges(network, no1, no2)
         modificacoes = LocalSearchAlgorithm.generateValidCombinations(network, arestas_relacionadas, budget)
@@ -22,7 +22,7 @@ class LocalSearchAlgorithm:
         for conjunto_arestas in modificacoes:
             new_network = LocalSearchAlgorithm.applyChanges(network, conjunto_arestas)
 
-            simulador = SumoSimulation(new_network)
+            simulador = SumoSimulation(new_network, vehicles)
             avgTravelTime = simulador.run_simulation()
 
             if min_tmax > avgTravelTime:
@@ -78,7 +78,7 @@ class LocalSearchAlgorithm:
         return new_network
 
     @staticmethod
-    def initialSolution(network, budget):
+    def initialSolution(network, budget, vehicles):
         new_network = network
         tentativas = len(network['arestas'])
         best_modificacoes = []
@@ -99,7 +99,7 @@ class LocalSearchAlgorithm:
 
         if best_modificacoes:
             new_network = LocalSearchAlgorithm.applyChanges(network, best_modificacoes)
-            simulador = SumoSimulation(new_network)
+            simulador = SumoSimulation(new_network, vehicles)
             avgTravelTime = simulador.run_simulation()
         else:
             avgTravelTime = None
@@ -107,13 +107,13 @@ class LocalSearchAlgorithm:
         return new_network, avgTravelTime
 
     @staticmethod
-    def localSearch(grafo, budget, interacoes=50, estrategia=2):
-        best_network, best_temp = LocalSearchAlgorithm.initialSolution(grafo, budget)
+    def localSearch(grafo, budget, interacoes=50, estrategia=2, vehicles = 50):
+        best_network, best_temp = LocalSearchAlgorithm.initialSolution(grafo, budget, vehicles)
 
         qtd_iteracoes = interacoes
 
         while int(qtd_iteracoes) > 0:
-            network_curent, temp_curent = LocalSearchAlgorithm.searchBestNeighbor(grafo, budget, estrategia)
+            network_curent, temp_curent = LocalSearchAlgorithm.searchBestNeighbor(grafo, budget, estrategia, vehicles)
             if temp_curent < best_temp:
                 best_temp = temp_curent
                 best_network = network_curent
@@ -136,7 +136,7 @@ class LocalSearchAlgorithm:
             json_str = f.read()
             data = json.loads(json_str)
 
-        best_network, best_temp = LocalSearchAlgorithm.localSearch(data, args.budget, args.interation, args.estrategy)
+        best_network, best_temp = LocalSearchAlgorithm.localSearch(data, args.budget, args.interation, args.estrategy, 50)
 
         print("Melhor solução encontrada:")
         print("Network:", best_network)

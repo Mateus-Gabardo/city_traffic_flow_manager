@@ -88,6 +88,7 @@ class initial_page:
         simulationNumber = self.simulation_entry.get()
         budget = self.simulation_entry2.get()
         estrategia = self.selected_estrategia.get()
+        vehicles = self.vehicles.get()
         if(estrategia == 'Primeira melhoria'):
             estrategia = 2
         else:
@@ -98,11 +99,11 @@ class initial_page:
             avg_travel_time = baseline.executar_algoritmo()
         
         if algorithm == "Baseline2":
-            baseline = BaseLineAlgorithm2(self.data, simulationNumber, budget)
+            baseline = BaseLineAlgorithm2(self.data, simulationNumber, budget, int(vehicles))
             avg_travel_time = baseline.executar_algoritmo()
 
         if algorithm == "Local Search":
-            avg_travel_time = LocalSearchAlgorithm.localSearch(self.data, int(budget), int(simulationNumber), estrategia)
+            avg_travel_time = LocalSearchAlgorithm.localSearch(self.data, int(budget), int(simulationNumber), estrategia, int(vehicles))
 
         # Exibe os resultados
         self.results_page = ResultsPage(self.master, avg_travel_time)

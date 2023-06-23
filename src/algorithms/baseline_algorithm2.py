@@ -15,10 +15,11 @@ import concurrent.futures
 import threading
 
 class BaseLineAlgorithm2:
-    def __init__(self, dados, nSimulation, budget):
+    def __init__(self, dados, nSimulation, budget, vehicles):
         self.graph = dados
         self.simulation_number = nSimulation
         self.buget_number = budget
+        self.vehicles = vehicles
 
     def executar_algoritmo(self):
         
@@ -45,7 +46,7 @@ class BaseLineAlgorithm2:
             bestJson = json_inicial
 
             # Retorno da simulação da instância inicial
-            simulador = SumoSimulation(self.graph)
+            simulador = SumoSimulation(self.graph, self.vehicles)
             BestAvgTravelTime = simulador.run_simulation()
 
             simulation_number = 1
@@ -76,7 +77,7 @@ class BaseLineAlgorithm2:
                     simulation_number += 1
 
                     # Simular modificação
-                    simulador = SumoSimulation(json_mod)
+                    simulador = SumoSimulation(json_mod, self.vehicles)
                     AvgTravelTime = simulador.run_simulation()
 
                     # Verificar se a modificação resultou em uma melhora

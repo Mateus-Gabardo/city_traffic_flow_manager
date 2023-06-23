@@ -11,7 +11,7 @@ class initial_page:
 
         # Define a largura e altura da janela
         self.largura = 500
-        self.altura = 500
+        self.altura = 300
 
         # Obtém a largura e altura da tela
         largura_tela = self.master.winfo_screenwidth()
@@ -80,18 +80,18 @@ class initial_page:
             avg_travel_time = baseline.executar_algoritmo()
 
         # Exibe os resultados
-        self.results_page = ResultsPage(self.master, avg_travel_time)
+        # self.results_page = ResultsPage(self.master, avg_travel_time)
 
 
-class ResultsPage:
-    def __init__(self, master, avg_travel_time):
-        self.master = master
-        self.master.title('Resultados')
-        self.master.geometry('500x500')
+# class ResultsPage:
+#     def __init__(self, master, avg_travel_time):
+#         self.master = master
+#         self.master.title('Resultados')
+#         self.master.geometry('500x500')
 
-        # Exibe os resultados
-        self.result_label = tk.Label(self.master, text=f"Tempo médio de viagem: {avg_travel_time}")
-        self.result_label.pack(pady=10)
+#         # Exibe os resultados
+#         self.result_label = tk.Label(self.master, text=f"Tempo médio de viagem: {avg_travel_time}")
+#         self.result_label.pack(pady=10)
 
 
 root = tk.Tk()

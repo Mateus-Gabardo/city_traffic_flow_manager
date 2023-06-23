@@ -5,6 +5,7 @@ from src.sumo_simulation import SumoSimulation
 from src.generators.sumo_xml_generator import SumoFilesGenerator
 import xml.etree.ElementTree as ET
 import src.utils as util
+import subprocess
 
 class BaseLineAlgorithm2:
     def __init__(self, dados, nSimulation, budget):
@@ -30,14 +31,15 @@ class BaseLineAlgorithm2:
             coordenadas = json_mod['coordenadas']
             arestas = json_mod['arestas']
             current_modification = []
+            budget = float(self.buget_number)
             
             for i in range(2):
                 
                 if random.random() < 0.5:
-                    json_mod, current_modification = util.nova_lane(arestas, modifications, json_mod, current_modification, self.buget_number)
+                    json_mod, current_modification, budget = util.nova_lane(arestas, modifications, json_mod, current_modification, budget)
                    
                 else:
-                    json_mod, current_modification = util.nova_aresta(vertices, arestas, arestas_criadas, coordenadas, json_mod, current_modification, self.buget_number)
+                    json_mod, current_modification, arestas_criadas, budget = util.nova_aresta(vertices, arestas, arestas_criadas, coordenadas, json_mod, current_modification, budget)
             
             # Decrementar variável de critério de parada caso essa combinação não tiver sido feita
             alternative_modification = [current_modification[1], current_modification[0]]
@@ -57,5 +59,7 @@ class BaseLineAlgorithm2:
 
         # Printar a melhor melhora no final
         print(f'O melhor tempo de viagem foi: {BestAvgTravelTime}')
+        command = ["python3", "sumo-gui", str(bestJson)]
+        subprocess.call(command)
 
         return BestAvgTravelTime

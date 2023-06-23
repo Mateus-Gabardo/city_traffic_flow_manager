@@ -25,6 +25,7 @@ class initial_page:
         self.master.geometry(f"{self.largura}x{self.altura}+{pos_x}+{pos_y}")
 
         # Seletor de Instâncias
+        self.data = None
         self.instances = ['Grid 4x4', 'Sioux Falls']
         self.selected_instance = tk.StringVar()
         self.selected_instance.set(self.instances[0])
@@ -57,22 +58,25 @@ class initial_page:
     def execute_algorithm(self):
         # Obtem a instância selecionada
         instance = self.selected_instance.get()
-
-        # Obtem os dados da instância
-        with open('src/data/grid/grid.json', 'r') as f:
-            json_str = f.read()
-            data = json.loads(json_str)
+        if instance == "Grid 4x4":
+            with open('src/data/grid/grid.json', 'r') as f:
+                json_str = f.read()
+                self.data = json.loads(json_str)
+        elif instance == "Sioux Falls":
+            with open('src/data/siouxFalls/siouxFalls.json', 'r') as f:
+                json_str = f.read()
+                self.data = json.loads(json_str)
 
         # Executa o algoritmo selecionado
         algorithm = self.selected_algorithm.get()
         simulationNumber = self.simulation_entry.get()
         budget = self.simulation_entry2.get()
         if algorithm == "Baseline":
-            baseline = BaseLineAlgorithm(data, simulationNumber)
+            baseline = BaseLineAlgorithm(self.data, simulationNumber, budget)
             avg_travel_time = baseline.executar_algoritmo()
         
         if algorithm == "Baseline2":
-            baseline = BaseLineAlgorithm2(data, simulationNumber, budget)
+            baseline = BaseLineAlgorithm2(self.data, simulationNumber, budget)
             avg_travel_time = baseline.executar_algoritmo()
 
         # Exibe os resultados
@@ -83,7 +87,7 @@ class ResultsPage:
     def __init__(self, master, avg_travel_time):
         self.master = master
         self.master.title('Resultados')
-        self.master.geometry('500x300')
+        self.master.geometry('500x500')
 
         # Exibe os resultados
         self.result_label = tk.Label(self.master, text=f"Tempo médio de viagem: {avg_travel_time}")

@@ -11,7 +11,7 @@ class BaseLineAlgorithm:
         self.graph = dados
         self.simulation_number = nSimulation
         self.buget_number = budget
-        #self.isOK = True
+        self.buget_number = float(self.buget_number)
 
     def executar_algoritmo(self):
         
@@ -28,18 +28,18 @@ class BaseLineAlgorithm:
         while simulacoes > 0:
             json_mod = copy.deepcopy(json_inicial)
             vertices = json_mod['vertices']
-            restricoes = json_mod['restricoes']
             coordenadas = json_mod['coordenadas']
             arestas = json_mod['arestas']
             current_modification = []
+            budget = self.buget_number
             
             for i in range(2):
                 
                 if random.random() < 0.5:
-                    json_mod, current_modification = self.nova_lane(arestas, modifications, json_mod, current_modification)
+                    json_mod, current_modification, budget = self.nova_lane(arestas, modifications, json_mod, current_modification, budget)
                    
                 else:
-                    json_mod, current_modification = self.nova_aresta(vertices, arestas, restricoes, arestas_criadas, coordenadas, json_mod, current_modification)
+                    json_mod, current_modification, budget = self.nova_aresta(vertices, arestas, arestas_criadas, coordenadas, json_mod, current_modification, budget)
             
             # Decrementar variável de critério de parada caso essa combinação não tiver sido feita
             alternative_modification = [current_modification[1], current_modification[0]]
@@ -62,7 +62,7 @@ class BaseLineAlgorithm:
 
         return BestAvgTravelTime
 
-    def nova_lane(self, arestas, modifications, json_mod, current_modification):
+    def nova_lane(self, arestas, modifications, json_mod, current_modification, budget):
          # escolha aleatoriamente uma das arestas
         aresta = random.choice(list(arestas.keys()))
 
@@ -71,11 +71,9 @@ class BaseLineAlgorithm:
             aresta = random.choice(list(arestas.keys()))
         
         # Verificar se está dento do budget
-        vertice1 = json_mod['arestas'][aresta].split("-")[0]
-        vertice2 = json_mod['arestas'][aresta].split("-")[1]
-        distancia = self.retorna_distancia(json_mod, vertice1, vertice2)
-        if self.buget_number <= distancia:
-            self.buget_number -= distancia
+        distancia = json_mod["arestas"][aresta]["length"]
+        if distancia <= budget:
+            budget -= distancia
 
              # adicionar mais uma lane à aresta escolhida
             arestas[aresta]["numLanes"] += 1
@@ -84,28 +82,27 @@ class BaseLineAlgorithm:
             # adicionar a aresta escolhida na lista de modificações e diminuir do budget
             current_modification.append(aresta)
 
-        return json_mod, current_modification
+        return json_mod, current_modification, budget
 
-    def nova_aresta(self, vertices, arestas, restricoes, arestas_criadas, coordenadas, json_mod, current_modification):
+    def nova_aresta(self, vertices, arestas, arestas_criadas, coordenadas, json_mod, current_modification, budget):
         tamanho_inicial = len(current_modification)
         while tamanho_inicial == len(current_modification):
-            # escolha aleatoriamente uma possível nova aresta
+            
+            # escolher aleatoriamente uma possível nova aresta
             vertice = random.choice(list(vertices))
-
             arestas_possiveis = self.ret_nova_arestas(vertice, arestas, arestas_criadas, coordenadas)
 
             if len(arestas_possiveis) > 0:
                 isok = False
-                while(not isok):
+                while not isok:
                     new_edge_name = random.choice(arestas_possiveis)
-                     # Verificar se está dento do budget
-                    vertice1 = json_mod['arestas'][new_edge_name].split("-")[0]
-                    vertice2 = json_mod['arestas'][new_edge_name].split("-")[1]
-                    distancia = self.retorna_distancia(json_mod, vertice1, vertice2)
-                    if self.buget_number <= distancia:
-                        self.buget_number -= distancia
-                        isok = True
 
+                    # Verificar se está dento do budget
+                    distancia = 1
+                    #json_mod["arestas"][new_edge_name]["length"]
+                    if distancia <= budget:
+                        budget -= distancia
+                        isok = True
                         new_edge = {
                             "lenght": 20,
                             "maxSpeed": random.randint(30, 70),
@@ -115,39 +112,28 @@ class BaseLineAlgorithm:
                         arestas[new_edge_name] = new_edge
                         json_mod['arestas'] = arestas
                         arestas_criadas.append(new_edge_name)
-                        if new_edge_name in restricoes.keys():
-                            for restricao in restricoes[new_edge_name]:
-                                arestas_criadas.append(restricao)
                         current_modification.append(new_edge_name)
                     else:
                         arestas_possiveis.remove(new_edge_name)
-                        if len(arestas_possiveis) == 0:
+                        if not arestas_possiveis:
                             isok = True
 
-        return json_mod, current_modification
+        return json_mod, current_modification, budget
 
     def ret_nova_arestas(self, verticeOrigem, arestas, arestas_criadas, coordenadas):
-        arestas_encontradas = []
-        arestas_possiveis = []
-        for aresta in arestas.keys():
-            if aresta.split('-')[0] == verticeOrigem:
-                arestas_encontradas.append(aresta)
+        arestas_possiveis = set()
+        for aresta in arestas:
+            v1, v2 = aresta.split('-')
+            if v1 == verticeOrigem and v2 not in arestas_criadas:
+                for outra_aresta in arestas:
+                    if v2 == outra_aresta.split('-')[0] and v1 != outra_aresta.split('-')[1]:
+                        ponto1 = self.ret_coordenadas(v1, coordenadas)
+                        ponto2 = self.ret_coordenadas(v2, coordenadas)
+                        ponto3 = self.ret_coordenadas(outra_aresta.split('-')[1], coordenadas)
+                        if not self.calcular_reta(ponto1, ponto2, ponto3):
+                            arestas_possiveis.add(v1 + '-' + outra_aresta.split('-')[1])
 
-        for aresta_encotrada in arestas_encontradas:
-            for aresta in arestas.keys():
-                if aresta_encotrada.split('-')[1] == aresta.split('-')[0] and aresta_encotrada.split('-')[0] != aresta.split('-')[1]:
-                    ponto1 = self.ret_coordenadas(aresta_encotrada.split('-')[0], coordenadas)
-                    ponto2 = self.ret_coordenadas(aresta.split('-')[1], coordenadas)
-                    ponto3 = self.ret_coordenadas(aresta.split('-')[0], coordenadas)
-                    if self.calcular_reta(ponto1, ponto2, ponto3) == False:
-                        if aresta_encotrada.split('-')[0]+'-'+aresta.split('-')[1] not in arestas_possiveis:
-                            arestas_possiveis.append(aresta_encotrada.split('-')[0]+'-'+aresta.split('-')[1])
-
-        for aresta_possivel in arestas_possiveis:
-            if aresta_possivel in arestas_criadas:
-                arestas_possiveis.remove(aresta_possivel)
-        
-        return arestas_possiveis
+        return list(arestas_possiveis)
 
     def calcular_reta(self, ponto1, ponto2, ponto3):
 
@@ -180,15 +166,3 @@ class BaseLineAlgorithm:
         retorno.append(x)
         retorno.append(y)
         return retorno
-    
-    def retorna_distancia(self, json_mod, vertice1, vertice2):
-        
-        vertice1x = json_mod["coordenadas"][vertice1]["x"]
-        vertice1y = json_mod["coordenadas"][vertice1]["y"]
-
-        vertice2x = json_mod["coordenadas"][vertice2]["x"]
-        vertice2y = json_mod["coordenadas"][vertice2]["y"]
-
-        distancia = math.sqrt((vertice2x - vertice1x)**2 + (vertice2y - vertice1y)**2)
-    
-        return distancia

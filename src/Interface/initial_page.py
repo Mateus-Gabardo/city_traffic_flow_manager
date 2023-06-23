@@ -61,6 +61,12 @@ class initial_page:
         self.simulation_entry2 = tk.Entry(self.master)
         self.simulation_entry2.pack(pady=10)
 
+        # Quantidade de Veículos
+        self.vehicles = tk.Label(self.master, text='Quantidade de Veículos:')
+        self.vehicles.pack(pady=2)
+        self.vehicles = tk.Entry(self.master)
+        self.vehicles.pack(pady=10)
+
         # Botão de execução
         self.execute_button = tk.Button(self.master, text='Executar', command=self.execute_algorithm)
         self.execute_button.pack()
@@ -99,18 +105,18 @@ class initial_page:
             avg_travel_time = LocalSearchAlgorithm.localSearch(self.data, int(budget), int(simulationNumber), estrategia)
 
         # Exibe os resultados
-        # self.results_page = ResultsPage(self.master, avg_travel_time)
+        self.results_page = ResultsPage(self.master, avg_travel_time)
 
 
-# class ResultsPage:
-#     def __init__(self, master, avg_travel_time):
-#         self.master = master
-#         self.master.title('Resultados')
-#         self.master.geometry('500x500')
+class ResultsPage:
+    def __init__(self, master, avg_travel_time):
+        self.master = master
+        self.master.title('Resultados')
+        self.master.geometry('500x500')
 
-#         # Exibe os resultados
-#         self.result_label = tk.Label(self.master, text=f"Tempo médio de viagem: {avg_travel_time}")
-#         self.result_label.pack(pady=10)
+        # Exibe os resultados
+        self.result_label = tk.Label(self.master, text=f"Tempo médio de viagem: {avg_travel_time}")
+        self.result_label.pack(pady=10)
 
 
 root = tk.Tk()

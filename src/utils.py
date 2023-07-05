@@ -10,19 +10,23 @@ def nova_lane(arestas, modifications, json_mod, current_modification, budget):
     while aresta in modifications:
         aresta = random.choice(list(arestas.keys()))
     
-    # Verificar se está dento do budget
-    distancia = json_mod["arestas"][aresta]["length"]
-    if distancia <= budget:
-        budget -= distancia
+    if not aresta:
+        isBudget = False
+    else:
+        isBudget = True   
+        # Verificar se está dento do budget
+        distancia = json_mod["arestas"][aresta]["length"]
+        if distancia <= budget:
+            budget -= distancia
 
-        # adicionar mais uma lane à aresta escolhida
-        arestas[aresta]["numLanes"] += 1
-        json_mod['arestas'] = arestas
+            # adicionar mais uma lane à aresta escolhida
+            arestas[aresta]["numLanes"] += 1
+            json_mod['arestas'] = arestas
 
-        # adicionar a aresta escolhida na lista de modificações e diminuir do budget
-        current_modification.append(aresta)
+            # adicionar a aresta escolhida na lista de modificações e diminuir do budget
+            current_modification.append(aresta)
 
-    return json_mod, current_modification, budget
+    return json_mod, current_modification, budget, isBudget
 
 def nova_aresta(vertices, arestas, arestas_criadas, coordenadas, json_mod, current_modification, budget):
     tamanho_inicial = len(current_modification)
@@ -31,6 +35,7 @@ def nova_aresta(vertices, arestas, arestas_criadas, coordenadas, json_mod, curre
         # escolher aleatoriamente uma possível nova aresta
         vertice = random.choice(list(vertices))
         arestas_possiveis = ret_nova_arestas(vertice, arestas, arestas_criadas, coordenadas)
+        isBudget = True
 
         if len(arestas_possiveis) > 0:
             isok = False
@@ -60,9 +65,10 @@ def nova_aresta(vertices, arestas, arestas_criadas, coordenadas, json_mod, curre
                         isok = True
         else:
             tamanho_inicial += 1
+            isBudget = False
 
 
-    return json_mod, current_modification, arestas_criadas, budget
+    return json_mod, current_modification, arestas_criadas, budget, isBudget
 
 def ret_nova_arestas(verticeOrigem, arestas, arestas_criadas, coordenadas):
     arestas_encontradas = []

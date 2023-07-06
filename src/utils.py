@@ -40,7 +40,9 @@ def nova_aresta(vertices, arestas, arestas_criadas, coordenadas, json_mod, curre
         if len(arestas_possiveis) > 0:
             isok = False
             while not isok:
-                new_edge_name = random.choice(arestas_possiveis)
+
+                new_edge_name_aux = random.choice(arestas_possiveis)
+                new_edge_name = new_edge_name_aux.split(';')[0]
 
                 # Verificar se está dento do budget
                 distancia = 1
@@ -49,7 +51,7 @@ def nova_aresta(vertices, arestas, arestas_criadas, coordenadas, json_mod, curre
                     budget -= distancia
                     isok = True
                     new_edge = {
-                        "lenght": 20,
+                        "lenght": new_edge_name_aux.split(';')[1],
                         "maxSpeed": random.randint(30, 70),
                         "numLanes": 1,
                         "priority": random.randint(80, 100)
@@ -80,12 +82,13 @@ def ret_nova_arestas(verticeOrigem, arestas, arestas_criadas, coordenadas):
     for aresta_encotrada in arestas_encontradas:
         for aresta in arestas.keys():
             if aresta_encotrada.split('-')[1] == aresta.split('-')[0] and aresta_encotrada.split('-')[0] != aresta.split('-')[1]:
-                if calcular_reta(arestas.keys(), aresta_encotrada.split('-')[0], aresta.split('-')[1], aresta.split('-')[0], coordenadas, arestas_criadas) == False:
+                is_Not_Reta, new_lenght = calcular_reta(arestas.keys(), aresta_encotrada.split('-')[0], aresta.split('-')[1], aresta.split('-')[0], coordenadas, arestas_criadas)
+                if is_Not_Reta == False:
                     if aresta_encotrada.split('-')[0]+'-'+aresta.split('-')[1] not in arestas_possiveis:
-                        arestas_possiveis.append(aresta_encotrada.split('-')[0]+'-'+aresta.split('-')[1])
+                        arestas_possiveis.append(aresta_encotrada.split('-')[0]+'-'+aresta.split('-')[1]+';'+new_lenght)
 
     for aresta_possivel in arestas_possiveis:
-        if aresta_possivel in arestas_criadas:
+        if aresta_possivel.split(';')[0] in arestas_criadas:
             arestas_possiveis.remove(aresta_possivel)
     
     return arestas_possiveis
@@ -106,14 +109,11 @@ def calcular_reta(arestas, vertice1, vertice2, vertice3, coordenadas, arestas_cr
 
     # Verifica se o ponto 3 está na reta
     x3, y3 = ponto3
-    # if x3 == ponto2[0] or y3 == ponto2[1]:
-    #     return True
-    # el
     if ponto1[0] == ponto2[0] == x3 or ponto1[1] == ponto2[1] == y3:
-        return True
+        return True, 0
     else:
         if abs(y3 - (m * x3 + b)) < 1e-10:  # Usamos a função abs() para evitar problemas com coordenadas negativas
-            return True
+            return True, 0
 
     # Verifica se a reta do ponto 1 ao ponto 2 cruza com qualquer reta que tenha o ponto 3
     # Verifica arestas iniciais
@@ -137,7 +137,7 @@ def calcular_reta(arestas, vertice1, vertice2, vertice3, coordenadas, arestas_cr
 
                 # Verifica se o ponto de interseção está dentro dos limites das retas
                 if 0 < ua < 1 and 0 < ub < 1:
-                    return True
+                    return True, 0
     
     # Verifica arestas criadas
     for aresta in arestas_criadasa:
@@ -160,9 +160,13 @@ def calcular_reta(arestas, vertice1, vertice2, vertice3, coordenadas, arestas_cr
 
                 # Verifica se o ponto de interseção está dentro dos limites das retas
                 if 0 < ua < 1 and 0 < ub < 1:
-                    return True
+                    return True, 0
 
-    return False
+    #Calcula nova lenght
+    lenght1 = ret_lenght(vertice1,vertice3, arestas)
+    lenght2 = ret_lenght(vertice3, vertice2, arestas)
+    new_lenght = math.sqrt(lenght1 ** 2 + lenght2 ** 2)
+    return False, new_lenght
 
 def ret_coordenadas(vertice, coordenadas):
     for coordenada in coordenadas.keys():
@@ -174,3 +178,7 @@ def ret_coordenadas(vertice, coordenadas):
     retorno.append(x)
     retorno.append(y)
     return retorno
+
+def ret_lenght(vertice1,vertice2, arestas):
+    new_aresta = vertice1+'-'+vertice2
+    return arestas[new_aresta]["length"]

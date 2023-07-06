@@ -8,7 +8,7 @@ import sumolib
 
 
 class SumoSimulation:
-    def __init__(self, json_str, trips = 50):
+    def __init__(self, json_str, trips):
         sumo_path = shutil.which('sumo')
         self.sumo_dir = os.path.dirname(sumo_path)
 

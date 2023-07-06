@@ -1,6 +1,4 @@
-import os
-import shutil
-import sys
+
 import random
 import copy
 from src.sumo_simulation import SumoSimulation
@@ -50,6 +48,7 @@ class BaseLineAlgorithm2:
             simulador = SumoSimulation(self.graph, self.vehicles)
             BestAvgTravelTime = simulador.run_simulation()
 
+            simulation_number = 1
             while simulacoes > 0:
                 json_mod = copy.deepcopy(json_inicial)
                 vertices = json_mod['vertices']
@@ -68,8 +67,8 @@ class BaseLineAlgorithm2:
                         json_mod, current_modification, arestas_criadas, budget, isBudget = util.nova_aresta(vertices, arestas, arestas_criadas, coordenadas, json_mod, current_modification, budget)
                 
                 # Decrementar variável de critério de parada caso essa combinação não tiver sido feita
-                alternative_modification = [current_modification[1], current_modification[0]]
-                if current_modification not in modifications and alternative_modification not in modifications:
+                #alternative_modification = [current_modification[1], current_modification[0]]
+                if current_modification not in modifications: #and alternative_modification not in modifications:
                     modifications.append(current_modification)
                     simulacoes -= 1
                     print(f"Simulação # {simulation_number}")

@@ -25,49 +25,48 @@ def nova_lane(arestas, modifications, json_mod, current_modification, budget):
 
             # adicionar a aresta escolhida na lista de modificações e diminuir do budget
             current_modification.append(aresta)
+        else:
+            isBudget: False
 
     return json_mod, current_modification, budget, isBudget
 
 def nova_aresta(vertices, arestas, arestas_criadas, coordenadas, json_mod, current_modification, budget):
-    tamanho_inicial = len(current_modification)
-    while tamanho_inicial == len(current_modification):
-        
-        # escolher aleatoriamente uma possível nova aresta
-        vertice = random.choice(list(vertices))
-        arestas_possiveis = ret_nova_arestas(vertice, arestas, arestas_criadas, coordenadas)
-        isBudget = True
+   
+    # escolher aleatoriamente uma possível nova aresta
+    vertice = random.choice(list(vertices))
+    arestas_possiveis = ret_nova_arestas(vertice, arestas, arestas_criadas, coordenadas)
+    isBudget = True
 
-        if len(arestas_possiveis) > 0:
-            isok = False
-            while not isok:
+    while len(arestas_possiveis) > 0:
+        isok = False
+        while not isok:
 
-                new_edge_name_aux = random.choice(arestas_possiveis)
-                new_edge_name = new_edge_name_aux.split(';')[0]
+            new_edge_name_aux = random.choice(arestas_possiveis)
+            new_edge_name = new_edge_name_aux.split(';')[0]
 
-                # Verificar se está dento do budget
-                distancia = 1
-                #json_mod["arestas"][new_edge_name]["length"]
-                if distancia <= budget:
-                    budget -= distancia
+            # Verificar se está dento do budget
+            distancia = float(new_edge_name_aux.split(';')[1])*1.3
+            #json_mod["arestas"][new_edge_name]["length"]
+            if distancia <= budget:
+                budget -= distancia
+                isok = True
+                new_edge = {
+                    "lenght": new_edge_name_aux.split(';')[1],
+                    "maxSpeed": random.randint(30, 70),
+                    "numLanes": 1,
+                    "priority": random.randint(80, 100)
+                }
+                arestas[new_edge_name] = new_edge
+                json_mod['arestas'] = arestas
+                arestas_criadas.append(new_edge_name)
+                current_modification.append(new_edge_name)
+                isok = True
+            else:
+                arestas_possiveis.remove(new_edge_name_aux)
+                if not arestas_possiveis:
                     isok = True
-                    new_edge = {
-                        "lenght": new_edge_name_aux.split(';')[1],
-                        "maxSpeed": random.randint(30, 70),
-                        "numLanes": 1,
-                        "priority": random.randint(80, 100)
-                    }
-                    arestas[new_edge_name] = new_edge
-                    json_mod['arestas'] = arestas
-                    arestas_criadas.append(new_edge_name)
-                    current_modification.append(new_edge_name)
-                    isok = True
-                else:
-                    arestas_possiveis.remove(new_edge_name)
-                    if not arestas_possiveis:
-                        isok = True
-        else:
-            tamanho_inicial += 1
-            isBudget = False
+    else:
+        isBudget = False
 
 
     return json_mod, current_modification, arestas_criadas, budget, isBudget
@@ -84,13 +83,14 @@ def ret_nova_arestas(verticeOrigem, arestas, arestas_criadas, coordenadas):
             if aresta_encotrada.split('-')[1] == aresta.split('-')[0] and aresta_encotrada.split('-')[0] != aresta.split('-')[1]:
                 is_Not_Reta, new_lenght = calcular_reta(arestas.keys(), aresta_encotrada.split('-')[0], aresta.split('-')[1], aresta.split('-')[0], coordenadas, arestas_criadas, arestas)
                 if is_Not_Reta == False:
-                    if aresta_encotrada.split('-')[0]+'-'+aresta.split('-')[1] not in arestas_possiveis:
+                    if aresta_encotrada.split('-')[0]+'-'+aresta.split('-')[1]+';'+str(new_lenght) not in arestas_possiveis:
                         arestas_possiveis.append(aresta_encotrada.split('-')[0]+'-'+aresta.split('-')[1]+';'+str(new_lenght))
 
     for aresta_possivel in arestas_possiveis:
         if aresta_possivel.split(';')[0] in arestas_criadas:
             arestas_possiveis.remove(aresta_possivel)
     
+
     return arestas_possiveis
 
 def calcular_reta(arestas, vertice1, vertice2, vertice3, coordenadas, arestas_criadasa, arestas_completas):

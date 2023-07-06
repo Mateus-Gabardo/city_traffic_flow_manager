@@ -82,10 +82,10 @@ def ret_nova_arestas(verticeOrigem, arestas, arestas_criadas, coordenadas):
     for aresta_encotrada in arestas_encontradas:
         for aresta in arestas.keys():
             if aresta_encotrada.split('-')[1] == aresta.split('-')[0] and aresta_encotrada.split('-')[0] != aresta.split('-')[1]:
-                is_Not_Reta, new_lenght = calcular_reta(arestas.keys(), aresta_encotrada.split('-')[0], aresta.split('-')[1], aresta.split('-')[0], coordenadas, arestas_criadas)
+                is_Not_Reta, new_lenght = calcular_reta(arestas.keys(), aresta_encotrada.split('-')[0], aresta.split('-')[1], aresta.split('-')[0], coordenadas, arestas_criadas, arestas)
                 if is_Not_Reta == False:
                     if aresta_encotrada.split('-')[0]+'-'+aresta.split('-')[1] not in arestas_possiveis:
-                        arestas_possiveis.append(aresta_encotrada.split('-')[0]+'-'+aresta.split('-')[1]+';'+new_lenght)
+                        arestas_possiveis.append(aresta_encotrada.split('-')[0]+'-'+aresta.split('-')[1]+';'+str(new_lenght))
 
     for aresta_possivel in arestas_possiveis:
         if aresta_possivel.split(';')[0] in arestas_criadas:
@@ -93,7 +93,7 @@ def ret_nova_arestas(verticeOrigem, arestas, arestas_criadas, coordenadas):
     
     return arestas_possiveis
 
-def calcular_reta(arestas, vertice1, vertice2, vertice3, coordenadas, arestas_criadasa):
+def calcular_reta(arestas, vertice1, vertice2, vertice3, coordenadas, arestas_criadasa, arestas_completas):
     # Verifica se o ponto 3 está na reta entre o ponto 1 e o ponto 2
     ponto1 = ret_coordenadas(vertice1, coordenadas)
     ponto2 = ret_coordenadas(vertice2, coordenadas)
@@ -163,8 +163,8 @@ def calcular_reta(arestas, vertice1, vertice2, vertice3, coordenadas, arestas_cr
                     return True, 0
 
     #Calcula nova lenght
-    lenght1 = ret_lenght(vertice1,vertice3, arestas)
-    lenght2 = ret_lenght(vertice3, vertice2, arestas)
+    lenght1 = ret_length(vertice1,vertice3, arestas_completas)
+    lenght2 = ret_length(vertice3, vertice2, arestas_completas)
     new_lenght = math.sqrt(lenght1 ** 2 + lenght2 ** 2)
     return False, new_lenght
 
@@ -179,6 +179,9 @@ def ret_coordenadas(vertice, coordenadas):
     retorno.append(y)
     return retorno
 
-def ret_lenght(vertice1,vertice2, arestas):
-    new_aresta = vertice1+'-'+vertice2
-    return arestas[new_aresta]["length"]
+def ret_length(vertice1, vertice2, arestas):
+    new_aresta = f"{vertice1}-{vertice2}"
+    aresta_info = arestas.get(new_aresta)
+    if aresta_info:
+        return aresta_info.get("length", 0)
+    return 0

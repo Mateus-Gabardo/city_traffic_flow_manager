@@ -1,7 +1,7 @@
 import json
 import csv
 import tkinter as tk
-from src.algorithms.baseline_algorithm import BaseLineAlgorithm
+import src.algorithms.busca_local as BuscaLocal
 from src.algorithms.baseline_algorithm2 import BaseLineAlgorithm2
 from src.algorithms.local_search_algorithm import LocalSearchAlgorithm
 
@@ -46,7 +46,7 @@ class initial_page:
         self.algorithm_label = tk.Label(self.master, text='Algoritmos')
         self.algorithm_label.grid(row=0, column=1, padx=10, pady=2, sticky='w')
 
-        self.algorithms = ['Baseline', 'Local Search', 'Iterated Local Search']
+        self.algorithms = ['Baseline', 'GabardoZanella', 'Local Search']
         self.selected_algorithms = []
         self.algorithm_checkboxes = []
         for i, algorithm in enumerate(self.algorithms):
@@ -128,28 +128,31 @@ class initial_page:
                     for i, var in enumerate(self.selected_algorithms):
                         algorithm = self.algorithms[i]
                         if var.get() == 1:
-                            if algorithm == "Local Search":
+                            if algorithm in ("GabardoZanella","Local Search"):
                                 for estrategia in estrategias:
-                                    avg_time = self.exec_algorithm(BaseLineAlgorithm2, LocalSearchAlgorithm, algorithm, budget, vehicles, estrategia, simulationNumber)
+                                    avg_time = self.exec_algorithm(BaseLineAlgorithm2, LocalSearchAlgorithm, BuscaLocal, algorithm, budget, vehicles, estrategia, simulationNumber)
                                     # Gravar os resultados no arquivo CSV
                                     writer.writerow([instance, algorithm, estrategia, avg_time, simulationNumber, budget, vehicles])
                             else:
-                                avg_time = self.exec_algorithm(BaseLineAlgorithm2, LocalSearchAlgorithm, algorithm, budget, vehicles, 0, simulationNumber)
+                                avg_time = self.exec_algorithm(BaseLineAlgorithm2, LocalSearchAlgorithm, BuscaLocal, algorithm, budget, vehicles, 0, simulationNumber)
                                 # Gravar os resultados no arquivo CSV
                                 writer.writerow([instance, algorithm, 0, avg_time, simulationNumber, budget, vehicles])
 
         # Exibe os resultados
         #self.results_page = ResultsPage(self.master, avg_travel_time)
 
-    def exec_algorithm(self, BaseLineAlgorithm2, LocalSearchAlgorithm, algorithm, budget, vehicles, estrategia, simulationNumber):
+    def exec_algorithm(self, BaseLineAlgorithm2, LocalSearchAlgorithm, BuscaLocal, algorithm, budget, vehicles, estrategia, simulationNumber):
         avg_travel_time = 0
 
         if algorithm == "Baseline":
             baseline = BaseLineAlgorithm2(self.data, simulationNumber, budget, vehicles)
             avg_travel_time = baseline.executar_algoritmo()
 
+        elif algorithm == "GabardoZanella":
+            best_network, avg_travel_time = LocalSearchAlgorithm.localSearch(self.data, int(budget), int(simulationNumber), estrategia, int(vehicles))
+
         elif algorithm == "Local Search":
-            avg_travel_time = LocalSearchAlgorithm.localSearch(self.data, int(budget), int(simulationNumber), estrategia, int(vehicles))
+            best_network, best_soluction, avg_travel_time = BuscaLocal.busca_local(self.data, int(budget), int(simulationNumber), estrategia, int(vehicles))
         
         return avg_travel_time
 

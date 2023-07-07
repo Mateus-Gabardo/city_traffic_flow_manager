@@ -229,4 +229,4 @@ def run():
 
     busca_local(data, 10)
 
-run()
+#run()

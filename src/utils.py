@@ -10,23 +10,20 @@ def nova_lane(arestas, modifications, json_mod, current_modification, budget):
     while aresta in modifications:
         aresta = random.choice(list(arestas.keys()))
     
-    if not aresta:
-        isBudget = False
-    else:
-        isBudget = True   
-        # Verificar se está dento do budget
-        distancia = json_mod["arestas"][aresta]["length"]
+    isBudget = False
+    if aresta:
+         # Verificar se está dento do budget
+        print(aresta)
+        distancia = float(json_mod['arestas'][aresta]['length'])
         if distancia <= budget:
             budget -= distancia
-
+            isBudget = True
             # adicionar mais uma lane à aresta escolhida
             arestas[aresta]["numLanes"] += 1
             json_mod['arestas'] = arestas
 
             # adicionar a aresta escolhida na lista de modificações e diminuir do budget
             current_modification.append(aresta)
-        else:
-            isBudget: False
 
     return json_mod, current_modification, budget, isBudget
 
@@ -35,9 +32,9 @@ def nova_aresta(vertices, arestas, arestas_criadas, coordenadas, json_mod, curre
     # escolher aleatoriamente uma possível nova aresta
     vertice = random.choice(list(vertices))
     arestas_possiveis = ret_nova_arestas(vertice, arestas, arestas_criadas, coordenadas)
-    isBudget = True
+    isBudget = False
 
-    while len(arestas_possiveis) > 0:
+    if len(arestas_possiveis) > 0:
         isok = False
         while not isok:
 
@@ -49,9 +46,9 @@ def nova_aresta(vertices, arestas, arestas_criadas, coordenadas, json_mod, curre
             #json_mod["arestas"][new_edge_name]["length"]
             if distancia <= budget:
                 budget -= distancia
-                isok = True
+                isBudget = True
                 new_edge = {
-                    "lenght": new_edge_name_aux.split(';')[1],
+                    "length": new_edge_name_aux.split(';')[1],
                     "maxSpeed": random.randint(30, 70),
                     "numLanes": 1,
                     "priority": random.randint(80, 100)
@@ -65,8 +62,9 @@ def nova_aresta(vertices, arestas, arestas_criadas, coordenadas, json_mod, curre
                 arestas_possiveis.remove(new_edge_name_aux)
                 if not arestas_possiveis:
                     isok = True
-    else:
-        isBudget = False
+            
+            if len(arestas_possiveis) == 0:
+                isok = True
 
 
     return json_mod, current_modification, arestas_criadas, budget, isBudget
@@ -81,15 +79,24 @@ def ret_nova_arestas(verticeOrigem, arestas, arestas_criadas, coordenadas):
     for aresta_encotrada in arestas_encontradas:
         for aresta in arestas.keys():
             if aresta_encotrada.split('-')[1] == aresta.split('-')[0] and aresta_encotrada.split('-')[0] != aresta.split('-')[1]:
-                is_Not_Reta, new_lenght = calcular_reta(arestas.keys(), aresta_encotrada.split('-')[0], aresta.split('-')[1], aresta.split('-')[0], coordenadas, arestas_criadas, arestas)
+                is_Not_Reta, new_length = calcular_reta(arestas.keys(), aresta_encotrada.split('-')[0], aresta.split('-')[1], aresta.split('-')[0], coordenadas, arestas_criadas, arestas)
                 if is_Not_Reta == False:
-                    if aresta_encotrada.split('-')[0]+'-'+aresta.split('-')[1]+';'+str(new_lenght) not in arestas_possiveis:
-                        arestas_possiveis.append(aresta_encotrada.split('-')[0]+'-'+aresta.split('-')[1]+';'+str(new_lenght))
+                    edge_exists = False
+                    new_edge = aresta_encotrada.split('-')[0] + '-' + aresta.split('-')[1] + ';' + str(new_length)
 
-    for aresta_possivel in arestas_possiveis:
-        if aresta_possivel.split(';')[0] in arestas_criadas:
-            arestas_possiveis.remove(aresta_possivel)
-    
+                    for aresta_possivel in arestas_possiveis:
+                        if aresta_possivel.split(';')[0] == new_edge.split(';')[0]:
+                            edge_exists = True
+                            break
+                    
+                    if new_edge.split(';')[0] in arestas.keys():
+                        edge_exists = True
+
+                    if new_edge.split(';')[0] in arestas_criadas:
+                        edge_exists = True
+
+                    if not edge_exists:
+                        arestas_possiveis.append(new_edge)
 
     return arestas_possiveis
 
@@ -163,9 +170,9 @@ def calcular_reta(arestas, vertice1, vertice2, vertice3, coordenadas, arestas_cr
                     return True, 0
 
     #Calcula nova lenght
-    lenght1 = ret_length(vertice1,vertice3, arestas_completas)
-    lenght2 = ret_length(vertice3, vertice2, arestas_completas)
-    new_lenght = math.sqrt(lenght1 ** 2 + lenght2 ** 2)
+    length1 = ret_length(vertice1,vertice3, arestas_completas)
+    length2 = ret_length(vertice3, vertice2, arestas_completas)
+    new_lenght = round(math.sqrt(float(length1) ** 2 + float(length2) ** 2),2)
     return False, new_lenght
 
 def ret_coordenadas(vertice, coordenadas):

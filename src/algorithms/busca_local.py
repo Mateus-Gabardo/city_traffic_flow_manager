@@ -22,7 +22,9 @@ def criar_matriz_adjacencia(grafo):
             id_aresta = matriz_adj[i][j]
 
             if id_aresta is not None:
-                atributos[id_aresta] = ['A', grafo["arestas"][id_aresta]]
+                propriedade_atualizada = grafo["arestas"][id_aresta]
+                propriedade_atualizada['numLanes'] += 1
+                atributos[id_aresta] = ['A', propriedade_atualizada]
             else:
                 new_id_aresta = f"{i}-{j}"
                 new_length  = arestas_possiveis.get(new_id_aresta)
@@ -85,22 +87,31 @@ def ret_coordenadas(vertice, coordenadas):
     retorno.append(y)
     return retorno
 
+import random
+
 def reduzir_budget(solucao_inicial, atributos, budget_total):
     budget_restante = budget_total
     conjuntos_removidos = []
-    
+    total_peso_solucao = sum(atributos[conjunto][1]['length'] for conjunto in solucao_inicial)
+    valor_a_reduzir = total_peso_solucao * 0.5
+
     solucao_embaralhada = random.sample(solucao_inicial, len(solucao_inicial))
-    
+
     for conjunto in solucao_embaralhada:
         chave_conjunto = conjunto
         peso_conjunto = atributos[chave_conjunto][1]['length']
-        
-        if peso_conjunto <= budget_restante * 0.5:
+
+        if peso_conjunto <= valor_a_reduzir:
             budget_restante -= peso_conjunto
+            valor_a_reduzir -= peso_conjunto
             conjuntos_removidos.append(conjunto)
-    
+
+        if valor_a_reduzir <= 0:
+            break
+
     solucao_final = [conjunto for conjunto in solucao_inicial if conjunto not in conjuntos_removidos]
     return solucao_final, budget_restante
+
 
 def avalia_melhoria(solucao, atributos, network, demanda):
     novo_tempo = float("inf")
@@ -120,7 +131,8 @@ def avalia_melhoria(solucao, atributos, network, demanda):
     novo_tempo = simulador.run_simulation()
     return novo_tempo, novo_network
 
-
+# solucao_atual = S = [1-6, 2-4]
+# Network - corresponde ao grafo da instancia
 def gerar_vizinhos(solucao_atual, network, budget_restante, matriz_adj, atributos, vertice_inicial, estrategia, demanda):
     melhor_solucao = solucao_atual
     menor_tempo = float("inf")
@@ -144,34 +156,55 @@ def gerar_vizinhos(solucao_atual, network, budget_restante, matriz_adj, atributo
                     return
         
         for i in range(len(matriz_adj)):
-            if i != vertice_inicial and matriz_adj[vertice_inicial][i] <= budget_restante:
-                nova_solucao = solucao_atual + [(vertice_inicial, i)]
-                novo_budget = budget_restante - matriz_adj[vertice_inicial][i]
-                buscar(nova_solucao, novo_budget)
+            vertice_adjacente = matriz_adj[vertice_inicial][i]
+            if vertice_adjacente is not None and vertice_adjacente in atributos:
+                node = atributos[vertice_adjacente]
+                if i != vertice_inicial and node[1]['length'] <= budget_restante:
+                    nova_solucao = solucao_atual + [vertice_adjacente]
+                    novo_budget = budget_restante - node[1]['length']
+                    buscar(nova_solucao, novo_budget)
 
-                if estrategia == 2 and menor_tempo < float("inf"):
-                    return
+                    if estrategia == 2 and menor_tempo < float("inf"):
+                        return
     
     buscar(solucao_atual, budget_restante)
     return melhor_solucao, melhor_network, menor_tempo
 
-def buscar_solucao_inicial(grafo, budget, vehicles):
-    solucao = None
+def buscar_solucao_inicial(grafo, budget, demanda, atributos):
+    solucao = []
     melhor_network = grafo
     melhor_tempo = 0
     
+    atributos_lista = list(atributos.keys())
+    
+    while budget > 0 and atributos_lista:
+        indice_sorteado = random.choice(atributos_lista)
+        atributo_sorteado = atributos[indice_sorteado]
+        
+        if budget >= atributo_sorteado[1]['length']:
+            solucao.append(indice_sorteado)
+            budget -= atributo_sorteado[1]['length']
+        
+        atributos_lista.remove(indice_sorteado)
+
+    melhor_tempo, melhor_network = avalia_melhoria(solucao, atributos, grafo, demanda)
     return solucao, melhor_network, melhor_tempo
 
-# Algoritmo de busca local aplicado ao network design problem
-# A solucão será representada da seguinte maneira
-# S = [1-6, 2-4] no qual, se referem do grafo que sofreram algum tipo de modificacao.
+# Algoritmo de busca local aplicado ao Network Design Problem
+#
+# A solucão será representada da seguinte maneira:
+#
+# S = [1-6, 2-4] 
+# 
+# no qual, se referem do grafo que sofreram algum tipo de modificacao.
 # As informaçoes mais espepecíficas sobre a modificação em estarao em hashMap que possui todas as modificacoes possiveis do grafo passado
 # onde o indice será a propria aresta.
-# o exemplo desses atributos será da segunte maneira
+# O exemplo desses atributos será da segunte maneira: 
+# 
 # {1-6: ['A', {'length': 20, 'maxSpeed': 80, 'numLanes': 1, 'priority': 100}]}
-def busca_local(grafo, budget, interacoes=50, estrategia=2, vehicles = 50):
-    melhor_solucao, melhor_network, melhor_tempo = buscar_solucao_inicial(grafo, budget, vehicles)
+def busca_local(grafo, budget, interacoes=10, estrategia=1, vehicles = 50):
     matriz_adj, atributos = criar_matriz_adjacencia(grafo)
+    melhor_solucao, melhor_network, melhor_tempo = buscar_solucao_inicial(grafo, budget, vehicles, atributos)
     qtd_iteracoes = interacoes
     vertice_inicial = 0
 
@@ -190,10 +223,10 @@ def busca_local(grafo, budget, interacoes=50, estrategia=2, vehicles = 50):
     return melhor_network, melhor_solucao, melhor_tempo
 
 def run():
-    with open('src/data/grid/grid.json', 'r') as f:
+    with open('src/data/siouxFalls/siouxFalls.json', 'r') as f:
         json_str = f.read()
         data = json.loads(json_str)
 
-    criar_matriz_adjacencia(data)
+    busca_local(data, 10)
 
 run()

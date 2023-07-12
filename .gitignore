@@ -1,2 +1,9 @@
 /env
 *.pyc
+*.pyc
+src/sumo_data/routes.xml
+src/sumo_data/output.xml
+src/sumo_data/nodes.xml
+src/sumo_data/network.net.xml
+src/sumo_data/edges.xml
+trips.trips.xml
